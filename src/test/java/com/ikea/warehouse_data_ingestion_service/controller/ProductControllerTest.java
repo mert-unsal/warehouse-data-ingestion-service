@@ -5,14 +5,18 @@ import com.ikea.warehouse_data_ingestion_service.data.ArticleAmount;
 import com.ikea.warehouse_data_ingestion_service.data.Product;
 import com.ikea.warehouse_data_ingestion_service.data.ProductsData;
 import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
+import com.ikea.warehouse_data_ingestion_service.service.ProductService;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -35,8 +39,23 @@ class ProductControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Autowired
     private KafkaProducerService kafkaProducerService;
+
+    @Autowired
+    private ProductService productService;
+
+    @TestConfiguration
+    static class MockServiceConfig {
+        @Bean
+        public KafkaProducerService kafkaProducerService() {
+            return Mockito.mock(KafkaProducerService.class);
+        }
+        @Bean
+        public ProductService productService() {
+            return Mockito.mock(ProductService.class);
+        }
+    }
 
     @Test
     void uploadProducts_WithValidFile_ShouldReturnSuccess() throws Exception {
@@ -59,9 +78,9 @@ class ProductControllerTest {
         // Act & Assert
         mockMvc.perform(multipart("/api/v1/products/upload").file(file))
             .andExpect(status().isOk())
-            .andExpect(content().string(containsString("Products uploaded successfully. 1 products processed.")));
+            .andExpect(content().string(containsString("Products uploaded successfully.")));
 
-        verify(kafkaProducerService).sendProductData(any(ProductsData.class));
+        verify(productService).proceedFile(any(MultipartFile.class));
     }
 
     @Test
@@ -98,7 +117,7 @@ class ProductControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Products data processed successfully. 1 products received.")));
 
-        verify(kafkaProducerService).sendProductData(any(ProductsData.class));
+        verify(productService).publishProductData(any(ProductsData.class));
     }
 
     @Test
