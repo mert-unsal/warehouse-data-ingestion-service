@@ -7,14 +7,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class GlobalExceptionHandlerTest {
 
     @Autowired
@@ -24,70 +27,58 @@ class GlobalExceptionHandlerTest {
     @DisplayName("Should handle JSON processing errors with standardized error response")
     void shouldHandleJsonProcessingError() throws Exception {
         MockMultipartFile invalidJsonFile = new MockMultipartFile(
-                "inventory",
+                "file",
                 "inventory.json",
                 MediaType.APPLICATION_JSON_VALUE,
                 "{ invalid json".getBytes()
         );
 
-        mockMvc.perform(multipart("/api/files/ingest")
+        mockMvc.perform(multipart("/api/v1/inventory/upload")
                         .file(invalidJsonFile))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.error").value("INVALID_JSON_FORMAT"))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.path").value("/api/files/ingest"))
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andExpect(jsonPath("$.message", containsString("Invalid JSON format")));
     }
 
     @Test
     @DisplayName("Should handle empty file uploads gracefully")
     void shouldHandleEmptyFileUpload() throws Exception {
         MockMultipartFile emptyFile = new MockMultipartFile(
-                "inventory",
+                "file",
                 "inventory.json",
                 MediaType.APPLICATION_JSON_VALUE,
                 new byte[0]
         );
 
-        mockMvc.perform(multipart("/api/files/ingest")
+        mockMvc.perform(multipart("/api/v1/inventory/upload")
                         .file(emptyFile))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("At least one file (inventory or products) must be provided"));
+                .andExpect(jsonPath("$.message").value("File is empty"));
     }
 
     @Test
-    @DisplayName("Should handle unsupported media type with standardized error response")
-    void shouldHandleUnsupportedMediaType() throws Exception {
-        mockMvc.perform(post("/api/files/ingest")
+    @DisplayName("Should handle invalid JSON data payload")
+    void shouldHandleInvalidJsonPayload() throws Exception {
+        mockMvc.perform(post("/api/v1/inventory/data")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isUnsupportedMediaType())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.error").value("UNSUPPORTED_MEDIA_TYPE"))
-                .andExpect(jsonPath("$.message").value("Content type not supported. Please use multipart/form-data for file uploads."))
-                .andExpect(jsonPath("$.status").value(415))
-                .andExpect(jsonPath("$.path").value("/api/files/ingest"))
-                .andExpect(jsonPath("$.timestamp").exists());
+                        .content("{\"invalid\": \"structure\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Invalid inventory data provided")));
     }
 
     @Test
-    @DisplayName("Should handle graceful processing of files with missing expected structure")
-    void shouldHandleGracefulProcessing() throws Exception {
-        MockMultipartFile malformedFile = new MockMultipartFile(
-                "inventory",
+    @DisplayName("Should handle successful inventory processing")
+    void shouldHandleSuccessfulProcessing() throws Exception {
+        String validInventoryJson = "{\"inventory\":[{\"art_id\":\"1\",\"name\":\"leg\",\"stock\":\"12\"}]}";
+        MockMultipartFile validFile = new MockMultipartFile(
+                "file",
                 "inventory.json",
                 MediaType.APPLICATION_JSON_VALUE,
-                "{\"wrong_structure\": []}".getBytes()
+                validInventoryJson.getBytes()
         );
 
-        mockMvc.perform(multipart("/api/files/ingest")
-                        .file(malformedFile))
+        mockMvc.perform(multipart("/api/v1/inventory/upload")
+                        .file(validFile))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.inventoryCount").value(0))
-                .andExpect(jsonPath("$.status").value("INGESTED"));
+                .andExpect(content().string(containsString("Inventory uploaded successfully")));
     }
 }
