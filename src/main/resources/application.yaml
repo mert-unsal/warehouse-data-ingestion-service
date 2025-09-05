@@ -22,6 +22,26 @@ logging:
   level:
     com.ikea.warehouse_data_ingestion_service: INFO
     org.springframework.web.multipart: DEBUG
+    org.springframework.kafka: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"
+  file:
+    name: logs/warehouse-ingestion.log
+
+# Management and monitoring endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
 kafka:
   bootstrap-servers: localhost:9092
