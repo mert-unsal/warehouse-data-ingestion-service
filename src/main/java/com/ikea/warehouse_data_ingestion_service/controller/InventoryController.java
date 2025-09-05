@@ -42,9 +42,13 @@ public class InventoryController {
     )
     @ApiResponse(responseCode = "200", description = "Inventory uploaded successfully")
     @ApiResponse(responseCode = "400", description = "Invalid file format or content")
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
     public ResponseEntity<String> uploadInventory(
-        @Parameter(description = "Inventory JSON file", required = true)
+        @Parameter(
+            description = "Inventory JSON file",
+            required = true,
+            content = @Content(mediaType = "application/json")
+        )
         @RequestParam("file") MultipartFile file) {
 
         String traceId = TraceContext.getCurrentTraceId();

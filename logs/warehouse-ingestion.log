@@ -1,0 +1,135 @@
+2025-09-05 21:51:27 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - Starting WarehouseDataIngestionServiceApplication using Java 21 with PID 25725 (/Users/mertunsal/Workspace/java/ikea/warehouse-data-ingestion-service/target/classes started by mertunsal in /Users/mertunsal/Workspace/java/ikea/warehouse-data-ingestion-service)
+2025-09-05 21:51:27 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - The following 4 profiles are active: "default", "logging", "management", "kafka"
+2025-09-05 21:51:27 [main] INFO  [] [] o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-09-05 21:51:27 [main] INFO  [] [] org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-09-05 21:51:27 [main] INFO  [] [] org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.44]
+2025-09-05 21:51:27 [main] INFO  [] [] o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-09-05 21:51:27 [main] INFO  [] [] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 898 ms
+2025-09-05 21:51:28 [main] INFO  [] [] o.s.v.beanvalidation.OptionalValidatorFactoryBean - Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2025-09-05 21:51:28 [main] INFO  [] [] o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 7 endpoints beneath base path '/actuator'
+2025-09-05 21:51:28 [main] INFO  [] [] o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-09-05 21:51:28 [main] INFO  [] [] c.i.w.config.kafka.KafkaConsumerTracingInterceptor - Kafka consumer tracing interceptor configured
+2025-09-05 21:51:28 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - Started WarehouseDataIngestionServiceApplication in 2.043 seconds (process running for 2.955)
+2025-09-05 21:51:28 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:28 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:28 [RMI TCP Connection(6)-127.0.0.1] INFO  [] [] o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-09-05 21:51:28 [RMI TCP Connection(6)-127.0.0.1] INFO  [] [] org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-09-05 21:51:28 [RMI TCP Connection(6)-127.0.0.1] INFO  [] [] org.springframework.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2025-09-05 21:51:29 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:29 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:29 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:29 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:29 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:29 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:29 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:29 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:30 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:30 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:31 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:31 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:32 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:32 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:33 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:33 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:34 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:34 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:35 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:35 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:36 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:36 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:37 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:37 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:38 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:38 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:39 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:39 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:40 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2025-09-05 21:51:40 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2025-09-05 21:51:41 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  [] [] c.i.w.config.kafka.KafkaConsumerTracingInterceptor - Kafka consumer tracing interceptor closed
+2025-09-05 21:51:41 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  [] [] o.s.kafka.listener.KafkaMessageListenerContainer - warehouse-group: Consumer stopped
+2025-09-05 21:51:41 [SpringApplicationShutdownHook] INFO  [] [] o.s.boot.web.embedded.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-09-05 21:51:41 [tomcat-shutdown] INFO  [] [] o.s.boot.web.embedded.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-09-05 22:00:09 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - Starting WarehouseDataIngestionServiceApplication using Java 21 with PID 26046 (/Users/mertunsal/Workspace/java/ikea/warehouse-data-ingestion-service/target/classes started by mertunsal in /Users/mertunsal/Workspace/java/ikea/warehouse-data-ingestion-service)
+2025-09-05 22:00:09 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - The following 4 profiles are active: "default", "logging", "management", "kafka"
+2025-09-05 22:00:10 [main] INFO  [] [] o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-09-05 22:00:10 [main] INFO  [] [] org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-09-05 22:00:10 [main] INFO  [] [] org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.44]
+2025-09-05 22:00:10 [main] INFO  [] [] o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-09-05 22:00:10 [main] INFO  [] [] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 852 ms
+2025-09-05 22:00:11 [main] INFO  [] [] o.s.v.beanvalidation.OptionalValidatorFactoryBean - Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2025-09-05 22:00:11 [main] INFO  [] [] o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 7 endpoints beneath base path '/actuator'
+2025-09-05 22:00:11 [main] INFO  [] [] o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-09-05 22:00:11 [main] INFO  [] [] c.i.w.config.kafka.KafkaConsumerTracingInterceptor - Kafka consumer tracing interceptor configured
+2025-09-05 22:00:11 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - Started WarehouseDataIngestionServiceApplication in 1.995 seconds (process running for 3.71)
+2025-09-05 22:00:11 [RMI TCP Connection(3)-127.0.0.1] INFO  [] [] o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-09-05 22:00:11 [RMI TCP Connection(3)-127.0.0.1] INFO  [] [] org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-09-05 22:00:11 [RMI TCP Connection(3)-127.0.0.1] INFO  [] [] org.springframework.web.servlet.DispatcherServlet - Completed initialization in 0 ms
+2025-09-05 22:00:11 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] WARN  [] [] org.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-warehouse-group-1, groupId=warehouse-group] The metadata response from the cluster reported a recoverable issue with correlation id 2 : {warehouse-events=UNKNOWN_TOPIC_OR_PARTITION}
+2025-09-05 22:00:12 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  [] [] o.s.kafka.listener.KafkaMessageListenerContainer - warehouse-group: partitions assigned: [warehouse-events-0]
+2025-09-05 22:02:52 [http-nio-8080-exec-1] ERROR [] [] c.i.w.exception.GlobalExceptionHandler - Unexpected exception occurred: No static resource .
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource .
+	at org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:585)
+	at org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter.handle(HttpRequestHandlerAdapter.java:52)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:110)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2025-09-05 22:02:59 [http-nio-8080-exec-2] INFO  [] [] org.springdoc.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 153 ms
+2025-09-05 22:05:46 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  [] [] o.s.kafka.listener.KafkaMessageListenerContainer - warehouse-group: partitions revoked: [warehouse-events-0]
+2025-09-05 22:05:50 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - Starting WarehouseDataIngestionServiceApplication using Java 21 with PID 26334 (/Users/mertunsal/Workspace/java/ikea/warehouse-data-ingestion-service/target/classes started by mertunsal in /Users/mertunsal/Workspace/java/ikea/warehouse-data-ingestion-service)
+2025-09-05 22:05:50 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - The following 4 profiles are active: "default", "logging", "management", "kafka"
+2025-09-05 22:05:51 [main] INFO  [] [] o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-09-05 22:05:51 [main] INFO  [] [] org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-09-05 22:05:51 [main] INFO  [] [] org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.44]
+2025-09-05 22:05:51 [main] INFO  [] [] o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-09-05 22:05:51 [main] INFO  [] [] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1456 ms
+2025-09-05 22:05:52 [main] INFO  [] [] o.s.v.beanvalidation.OptionalValidatorFactoryBean - Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2025-09-05 22:05:52 [main] INFO  [] [] o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 7 endpoints beneath base path '/actuator'
+2025-09-05 22:05:52 [main] INFO  [] [] o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-09-05 22:05:52 [main] INFO  [] [] c.i.w.config.kafka.KafkaConsumerTracingInterceptor - Kafka consumer tracing interceptor configured
+2025-09-05 22:05:52 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - Started WarehouseDataIngestionServiceApplication in 3.222 seconds (process running for 4.143)
+2025-09-05 22:05:53 [RMI TCP Connection(11)-127.0.0.1] INFO  [] [] o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-09-05 22:05:53 [RMI TCP Connection(11)-127.0.0.1] INFO  [] [] org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-09-05 22:05:53 [RMI TCP Connection(11)-127.0.0.1] INFO  [] [] org.springframework.web.servlet.DispatcherServlet - Completed initialization in 0 ms
+2025-09-05 22:05:53 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  [] [] o.s.kafka.listener.KafkaMessageListenerContainer - warehouse-group: partitions assigned: [warehouse-events-0]
+2025-09-05 22:06:00 [http-nio-8080-exec-4] INFO  [] [] org.springdoc.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 214 ms
