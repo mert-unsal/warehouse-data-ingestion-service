@@ -1,22 +1,10 @@
 package com.ikea.warehouse_data_ingestion_service.data;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
-public class InventoryData {
-    private List<InventoryItem> inventory;
-
-    public InventoryData() {}
-
-    public InventoryData(List<InventoryItem> inventory) {
-        this.inventory = inventory;
-    }
-
-    public List<InventoryItem> getInventory() {
-        return inventory;
-    }
-
-    public void setInventory(List<InventoryItem> inventory) {
-        this.inventory = inventory;
-    }
-}
-
+@Schema(description = "Wrapper for inventory data containing list of inventory items")
+public record InventoryData(
+    @Schema(description = "List of inventory items")
+    List<InventoryItem> inventory
+) {}

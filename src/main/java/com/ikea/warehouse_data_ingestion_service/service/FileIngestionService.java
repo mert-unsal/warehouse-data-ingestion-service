@@ -26,14 +26,14 @@ public class FileIngestionService {
 
         if (inventoryFile != null && !inventoryFile.isEmpty()) {
             InventoryData inventoryData = objectMapper.readValue(inventoryFile.getInputStream(), InventoryData.class);
-            result.put("inventoryCount", inventoryData.getInventory() != null ? inventoryData.getInventory().size() : 0);
+            result.put("inventoryCount", inventoryData.inventory() != null ? inventoryData.inventory().size() : 0);
         } else {
             result.put("inventoryCount", 0);
         }
 
         if (productsFile != null && !productsFile.isEmpty()) {
             ProductsData productsData = objectMapper.readValue(productsFile.getInputStream(), ProductsData.class);
-            List<Product> products = productsData.getProducts() != null ? productsData.getProducts() : List.of();
+            List<Product> products = productsData.products() != null ? productsData.products() : List.of();
             result.put("productCount", products.size());
         } else {
             result.put("productCount", 0);

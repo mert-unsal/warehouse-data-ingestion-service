@@ -1,34 +1,15 @@
 package com.ikea.warehouse_data_ingestion_service.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-public class ArticleAmount {
+@Schema(description = "Article requirement specification for a product")
+public record ArticleAmount(
     @JsonProperty("art_id")
-    private String art_id;
+    @Schema(description = "Article identifier", example = "1")
+    String artId,
+
     @JsonProperty("amount_of")
-    private String amount_of;
-
-    public ArticleAmount() {}
-
-    public ArticleAmount(String art_id, String amount_of) {
-        this.art_id = art_id;
-        this.amount_of = amount_of;
-    }
-
-    public String getArt_id() {
-        return art_id;
-    }
-
-    public void setArt_id(String art_id) {
-        this.art_id = art_id;
-    }
-
-    public String getAmount_of() {
-        return amount_of;
-    }
-
-    public void setAmount_of(String amount_of) {
-        this.amount_of = amount_of;
-    }
-}
-
+    @Schema(description = "Required quantity of this article", example = "4")
+    String amountOf
+) {}
