@@ -100,16 +100,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FileProcessingException.class)
     public ResponseEntity<ErrorResponse> handleFileProcessingException(FileProcessingException ex, HttpServletRequest request) {
-        log.error("File Processing Exception occurred: {}", ex.getMessage(), ex);
-
+        log.error("FileProcessingException occurred: {}", ex.getMessage(), ex);
         ErrorResponse errorResponse = new ErrorResponse(
-            "FILE_PROCESSING_ERROR",
+            ex.getError(),
             ex.getMessage(),
             HttpStatus.BAD_REQUEST.value(),
             request.getRequestURI(),
             LocalDateTime.now().format(TIMESTAMP_FORMATTER)
         );
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
