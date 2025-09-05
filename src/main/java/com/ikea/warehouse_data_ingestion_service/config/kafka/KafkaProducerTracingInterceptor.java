@@ -1,4 +1,4 @@
-package com.ikea.warehouse_data_ingestion_service.config;
+package com.ikea.warehouse_data_ingestion_service.config.kafka;
 
 import com.ikea.warehouse_data_ingestion_service.util.TraceContext;
 import org.apache.kafka.clients.producer.ProducerInterceptor;
