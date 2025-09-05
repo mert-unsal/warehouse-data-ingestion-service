@@ -1,7 +1,13 @@
 # Kafka Configuration Profile
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-  topic: ${KAFKA_TOPIC:warehouse-events}
+  topic:
+    product: ${KAFKA_TOPIC_PRODUCT:ikea.warehouse.product.update.topic}
+    product-error: ${KAFKA_TOPIC_PRODUCT_ERROR:ikea.warehouse.product.update.topic.error}
+    product-retry: ${KAFKA_TOPIC_PRODUCT_RETRY:ikea.warehouse.product.update.topic.retry}
+    inventory: ${KAFKA_TOPIC_INVENTORY:ikea.warehouse.inventory.update.topic}
+    inventory-error: ${KAFKA_TOPIC_INVENTORY_ERROR:ikea.warehouse.inventory.update.topic.error}
+    inventory-retry: ${KAFKA_TOPIC_INVENTORY_RETRY:ikea.warehouse.inventory.update.topic.retry}
   producer:
     retries: 3
     batch-size: 16384
