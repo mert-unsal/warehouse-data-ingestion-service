@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class KafkaProducerTracingInterceptor implements ProducerInterceptor<String, String> {
+public class KafkaProducerTracingInterceptor implements ProducerInterceptor<String, Object> {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaProducerTracingInterceptor.class);
 
     @Override
-    public ProducerRecord<String, String> onSend(ProducerRecord<String, String> record) {
+    public ProducerRecord<String, Object> onSend(ProducerRecord<String, Object> record) {
         try {
             // Get current trace ID from MDC
             String traceId = TraceContext.getCurrentTraceId();
@@ -29,8 +29,9 @@ public class KafkaProducerTracingInterceptor implements ProducerInterceptor<Stri
                 // Add timestamp for message tracking
                 headers.add("X-Timestamp", String.valueOf(System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
 
-                logger.debug("Added trace ID to Kafka message - Topic: {}, TraceId: {}, Key: {}",
-                           record.topic(), traceId, record.key());
+                logger.debug("Added trace ID to Kafka message - Topic: {}, TraceId: {}, Key: {}, ValueType: {}",
+                           record.topic(), traceId, record.key(),
+                           record.value() != null ? record.value().getClass().getSimpleName() : "null");
             } else {
                 logger.warn("No headers found in Kafka message - Topic: {}, Key: {}",
                           record.topic(), record.key());

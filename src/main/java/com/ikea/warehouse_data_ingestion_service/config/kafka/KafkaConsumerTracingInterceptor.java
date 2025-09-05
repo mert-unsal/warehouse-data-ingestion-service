@@ -14,13 +14,13 @@ import org.slf4j.MDC;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class KafkaConsumerTracingInterceptor implements ConsumerInterceptor<String, String> {
+public class KafkaConsumerTracingInterceptor implements ConsumerInterceptor<String, Object> {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerTracingInterceptor.class);
 
     @Override
-    public ConsumerRecords<String, String> onConsume(ConsumerRecords<String, String> records) {
-        for (ConsumerRecord<String, String> record : records) {
+    public ConsumerRecords<String, Object> onConsume(ConsumerRecords<String, Object> records) {
+        for (ConsumerRecord<String, Object> record : records) {
             try {
                 // Extract trace ID from Kafka message headers
                 String traceId = null;
@@ -28,13 +28,15 @@ public class KafkaConsumerTracingInterceptor implements ConsumerInterceptor<Stri
 
                 if (traceHeader != null) {
                     traceId = new String(traceHeader.value(), StandardCharsets.UTF_8);
-                    logger.debug("Extracted trace ID from Kafka message - Topic: {}, TraceId: {}, Key: {}",
-                               record.topic(), traceId, record.key());
+                    logger.debug("Extracted trace ID from Kafka message - Topic: {}, TraceId: {}, Key: {}, ValueType: {}",
+                               record.topic(), traceId, record.key(),
+                               record.value() != null ? record.value().getClass().getSimpleName() : "null");
                 } else {
                     // Generate new trace ID if not found in message headers
                     traceId = TraceContext.getCurrentTraceId();
-                    logger.warn("No trace ID found in Kafka message, generated new one - Topic: {}, TraceId: {}, Key: {}",
-                              record.topic(), traceId, record.key());
+                    logger.warn("No trace ID found in Kafka message, generated new one - Topic: {}, TraceId: {}, Key: {}, ValueType: {}",
+                              record.topic(), traceId, record.key(),
+                              record.value() != null ? record.value().getClass().getSimpleName() : "null");
                 }
 
                 // Set trace context for this thread
@@ -45,8 +47,9 @@ public class KafkaConsumerTracingInterceptor implements ConsumerInterceptor<Stri
                 MDC.put(TraceContext.OPERATION_MDC_KEY, operation);
 
                 // Log message processing with trace context
-                logger.info("Processing Kafka message - Topic: {}, Partition: {}, Offset: {}, TraceId: {}, Operation: {}",
-                           record.topic(), record.partition(), record.offset(), traceId, operation);
+                logger.info("Processing Kafka message - Topic: {}, Partition: {}, Offset: {}, TraceId: {}, Operation: {}, ValueType: {}",
+                           record.topic(), record.partition(), record.offset(), traceId, operation,
+                           record.value() != null ? record.value().getClass().getSimpleName() : "null");
 
                 // Extract timestamp if available
                 Header timestampHeader = record.headers().lastHeader("X-Timestamp");

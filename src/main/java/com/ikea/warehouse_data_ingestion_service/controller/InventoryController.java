@@ -66,9 +66,8 @@ public class InventoryController {
             logger.info("Successfully parsed inventory file - {} articles found, traceId: {}",
                        inventoryData.inventory().size(), traceId);
 
-            // Send to Kafka for downstream processing (trace ID will be added by interceptor)
-            String jsonMessage = objectMapper.writeValueAsString(inventoryData);
-            kafkaProducerService.sendMessage("INVENTORY_UPLOAD: " + jsonMessage);
+            // Send to Kafka for downstream processing - now sending Java object directly
+            kafkaProducerService.sendInventoryData(inventoryData);
 
             // Record metrics
             metricsService.recordSuccessfulUpload("inventory", inventoryData.inventory().size(), file.getSize());
@@ -114,9 +113,8 @@ public class InventoryController {
             logger.info("Starting inventory data ingestion - {} articles received, traceId: {}",
                        inventoryData.inventory().size(), traceId);
 
-            // Send to Kafka for downstream processing
-            String jsonMessage = objectMapper.writeValueAsString(inventoryData);
-            kafkaProducerService.sendMessage("INVENTORY_DATA: " + jsonMessage);
+            // Send to Kafka for downstream processing - now sending Java object directly
+            kafkaProducerService.sendInventoryData(inventoryData);
 
             // Record metrics
             metricsService.recordSuccessfulUpload("inventory", inventoryData.inventory().size(), 0L);
