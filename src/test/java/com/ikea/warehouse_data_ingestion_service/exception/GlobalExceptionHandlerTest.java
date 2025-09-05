@@ -43,21 +43,6 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("Should handle multipart errors with standardized error response")
-    void shouldHandleMultipartError() throws Exception {
-        mockMvc.perform(post("/api/files/ingest")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.error").value("MULTIPART_ERROR"))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.path").value("/api/files/ingest"))
-                .andExpect(jsonPath("$.timestamp").exists());
-    }
-
-    @Test
     @DisplayName("Should handle empty file uploads gracefully")
     void shouldHandleEmptyFileUpload() throws Exception {
         MockMultipartFile emptyFile = new MockMultipartFile(
@@ -75,34 +60,12 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("Should handle file processing errors with detailed error information")
-    void shouldHandleFileProcessingError() throws Exception {
-        // Create a file that will cause processing issues - missing required structure
-        MockMultipartFile malformedFile = new MockMultipartFile(
-                "inventory",
-                "inventory.json",
-                MediaType.APPLICATION_JSON_VALUE,
-                "{\"wrong_structure\": []}".getBytes()
-        );
-
-        mockMvc.perform(multipart("/api/files/ingest")
-                        .file(malformedFile))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.path").value("/api/files/ingest"))
-                .andExpect(jsonPath("$.timestamp").exists());
-    }
-
-    @Test
     @DisplayName("Should handle unsupported media type with standardized error response")
     void shouldHandleUnsupportedMediaType() throws Exception {
         mockMvc.perform(post("/api/files/ingest")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
-                .andExpect(status().isUnsupportedMediaType())  // Expect 415, not 400
+                .andExpect(status().isUnsupportedMediaType())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error").value("UNSUPPORTED_MEDIA_TYPE"))
                 .andExpect(jsonPath("$.message").value("Content type not supported. Please use multipart/form-data for file uploads."))
@@ -112,9 +75,8 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("Should handle graceful processing of malformed structure")
+    @DisplayName("Should handle graceful processing of files with missing expected structure")
     void shouldHandleGracefulProcessing() throws Exception {
-        // This file has wrong structure but doesn't cause exceptions - gracefully processed
         MockMultipartFile malformedFile = new MockMultipartFile(
                 "inventory",
                 "inventory.json",
@@ -124,7 +86,7 @@ class GlobalExceptionHandlerTest {
 
         mockMvc.perform(multipart("/api/files/ingest")
                         .file(malformedFile))
-                .andExpect(status().isOk())  // Expect 200 - graceful handling
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.inventoryCount").value(0))
                 .andExpect(jsonPath("$.status").value("INGESTED"));
