@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikea.warehouse_data_ingestion_service.data.ProductsData;
 import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
 import com.ikea.warehouse_data_ingestion_service.service.MetricsService;
+import com.ikea.warehouse_data_ingestion_service.service.TraceContext;
 import io.micrometer.core.instrument.Timer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,12 +28,14 @@ public class ProductController {
     private final ObjectMapper objectMapper;
     private final KafkaProducerService kafkaProducerService;
     private final MetricsService metricsService;
+    private final TraceContext traceContext;
 
     public ProductController(ObjectMapper objectMapper, KafkaProducerService kafkaProducerService,
-                             MetricsService metricsService) {
+                             MetricsService metricsService, TraceContext traceContext) {
         this.objectMapper = objectMapper;
         this.kafkaProducerService = kafkaProducerService;
         this.metricsService = metricsService;
+        this.traceContext = traceContext;
     }
 
     @Operation(
@@ -46,13 +49,15 @@ public class ProductController {
         @Parameter(description = "Products JSON file", required = true)
         @RequestParam("file") MultipartFile file) {
 
+        String traceId = traceContext.getCurrentTraceId();
         Timer.Sample timer = metricsService.startFileUploadTimer();
-        logger.info("Starting product file upload - filename: {}, size: {} bytes",
-                   file.getOriginalFilename(), file.getSize());
+
+        logger.info("Starting product file upload - filename: {}, size: {} bytes, traceId: {}",
+                   file.getOriginalFilename(), file.getSize(), traceId);
 
         try {
             if (file.isEmpty()) {
-                logger.warn("Product upload failed - empty file provided");
+                logger.warn("Product upload failed - empty file provided, traceId: {}", traceId);
                 metricsService.recordFailedUpload("products", "empty_file");
                 return ResponseEntity.badRequest().body("File is empty");
             }
@@ -60,10 +65,10 @@ public class ProductController {
             // Parse the uploaded JSON file
             ProductsData productsData = objectMapper.readValue(file.getInputStream(), ProductsData.class);
 
-            logger.info("Successfully parsed products file - {} products found",
-                       productsData.products().size());
+            logger.info("Successfully parsed products file - {} products found, traceId: {}",
+                       productsData.products().size(), traceId);
 
-            // Send to Kafka for downstream processing
+            // Send to Kafka for downstream processing (trace ID will be added by interceptor)
             String jsonMessage = objectMapper.writeValueAsString(productsData);
             kafkaProducerService.sendMessage("PRODUCT_UPLOAD: " + jsonMessage);
 
@@ -71,14 +76,14 @@ public class ProductController {
             metricsService.recordSuccessfulUpload("products", productsData.products().size(), file.getSize());
             metricsService.recordKafkaMessage("PRODUCT_UPLOAD");
 
-            logger.info("Product upload completed successfully - {} products processed",
-                       productsData.products().size());
+            logger.info("Product upload completed successfully - {} products processed, traceId: {}",
+                       productsData.products().size(), traceId);
 
-            return ResponseEntity.ok(String.format("Products uploaded successfully. %d products processed.",
-                productsData.products().size()));
+            return ResponseEntity.ok(String.format("Products uploaded successfully. %d products processed. TraceId: %s",
+                productsData.products().size(), traceId));
 
         } catch (Exception e) {
-            logger.error("Product upload failed - error: {}", e.getMessage(), e);
+            logger.error("Product upload failed - error: {}, traceId: {}", e.getMessage(), traceId, e);
             metricsService.recordFailedUpload("products", "processing_error");
             return ResponseEntity.badRequest().body("Error processing products file: " + e.getMessage());
         } finally {
@@ -97,20 +102,21 @@ public class ProductController {
     )
     @PostMapping("/data")
     public ResponseEntity<String> uploadProductsData(@RequestBody ProductsData productsData) {
+        String traceId = traceContext.getCurrentTraceId();
         Timer.Sample timer = metricsService.startDataProcessingTimer();
 
         try {
             // Add null safety check
             if (productsData == null || productsData.products() == null) {
-                logger.warn("Product data ingestion failed - invalid or null data provided");
+                logger.warn("Product data ingestion failed - invalid or null data provided, traceId: {}", traceId);
                 metricsService.recordFailedUpload("products", "invalid_data");
                 return ResponseEntity.badRequest().body("Invalid products data provided");
             }
 
-            logger.info("Starting product data ingestion - {} products received",
-                       productsData.products().size());
+            logger.info("Starting product data ingestion - {} products received, traceId: {}",
+                       productsData.products().size(), traceId);
 
-            // Send to Kafka for downstream processing
+            // Send to Kafka for downstream processing (trace ID will be added by interceptor)
             String jsonMessage = objectMapper.writeValueAsString(productsData);
             kafkaProducerService.sendMessage("PRODUCT_DATA: " + jsonMessage);
 
@@ -118,14 +124,14 @@ public class ProductController {
             metricsService.recordSuccessfulUpload("products", productsData.products().size(), 0L);
             metricsService.recordKafkaMessage("PRODUCT_DATA");
 
-            logger.info("Product data ingestion completed successfully - {} products processed",
-                       productsData.products().size());
+            logger.info("Product data ingestion completed successfully - {} products processed, traceId: {}",
+                       productsData.products().size(), traceId);
 
-            return ResponseEntity.ok(String.format("Products data processed successfully. %d products received.",
-                productsData.products().size()));
+            return ResponseEntity.ok(String.format("Products data processed successfully. %d products received. TraceId: %s",
+                productsData.products().size(), traceId));
 
         } catch (Exception e) {
-            logger.error("Product data ingestion failed - error: {}", e.getMessage(), e);
+            logger.error("Product data ingestion failed - error: {}, traceId: {}", e.getMessage(), traceId, e);
             metricsService.recordFailedUpload("products", "processing_error");
             return ResponseEntity.badRequest().body("Error processing products data: " + e.getMessage());
         } finally {
