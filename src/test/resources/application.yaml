@@ -3,10 +3,8 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
-  kafka:
-    producer:
-      bootstrap-servers: localhost:9999
-    bootstrap-servers: localhost:9999
+  profiles:
+    active: default,logging,management,kafka
 
 logging:
   level:
