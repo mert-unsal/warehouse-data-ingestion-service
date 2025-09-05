@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikea.warehouse_data_ingestion_service.data.InventoryData;
 import com.ikea.warehouse_data_ingestion_service.data.InventoryItem;
 import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
+import com.ikea.warehouse_data_ingestion_service.service.MetricsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -30,6 +31,9 @@ class InventoryControllerTest {
 
     @MockBean
     private KafkaProducerService kafkaProducerService;
+
+    @MockBean
+    private MetricsService metricsService;
 
     @Test
     void uploadInventory_WithValidFile_ShouldReturnSuccess() throws Exception {

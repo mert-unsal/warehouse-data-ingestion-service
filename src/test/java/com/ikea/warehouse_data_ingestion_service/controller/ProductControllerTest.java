@@ -1,10 +1,11 @@
 package com.ikea.warehouse_data_ingestion_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ikea.warehouse_data_ingestion_service.data.ArticleAmount;
 import com.ikea.warehouse_data_ingestion_service.data.Product;
 import com.ikea.warehouse_data_ingestion_service.data.ProductsData;
-import com.ikea.warehouse_data_ingestion_service.data.ArticleAmount;
 import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
+import com.ikea.warehouse_data_ingestion_service.service.MetricsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,8 +18,10 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
 class ProductControllerTest {
@@ -31,6 +34,9 @@ class ProductControllerTest {
 
     @MockBean
     private KafkaProducerService kafkaProducerService;
+
+    @MockBean
+    private MetricsService metricsService;
 
     @Test
     void uploadProducts_WithValidFile_ShouldReturnSuccess() throws Exception {

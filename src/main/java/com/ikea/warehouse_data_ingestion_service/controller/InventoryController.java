@@ -46,13 +46,14 @@ public class InventoryController {
         @Parameter(description = "Inventory JSON file", required = true)
         @RequestParam("file") MultipartFile file) {
 
-        Timer.Sample timer = metricsService.startUploadTimer();
+        Timer.Sample timer = metricsService.startFileUploadTimer();
         logger.info("Starting inventory file upload - filename: {}, size: {} bytes",
                    file.getOriginalFilename(), file.getSize());
 
         try {
             if (file.isEmpty()) {
                 logger.warn("Inventory upload failed - empty file provided");
+                metricsService.recordFailedUpload("inventory", "empty_file");
                 return ResponseEntity.badRequest().body("File is empty");
             }
 
@@ -66,9 +67,9 @@ public class InventoryController {
             String jsonMessage = objectMapper.writeValueAsString(inventoryData);
             kafkaProducerService.sendMessage("INVENTORY_UPLOAD: " + jsonMessage);
 
-            // Record metrics
-            metricsService.recordInventoryUpload(inventoryData.inventory().size());
-            metricsService.recordKafkaMessage();
+            // Record metrics with improved method
+            metricsService.recordSuccessfulUpload("inventory", inventoryData.inventory().size(), file.getSize());
+            metricsService.recordKafkaMessage("INVENTORY_UPLOAD");
 
             logger.info("Inventory upload completed successfully - {} articles processed",
                        inventoryData.inventory().size());
@@ -78,9 +79,10 @@ public class InventoryController {
 
         } catch (Exception e) {
             logger.error("Inventory upload failed - error: {}", e.getMessage(), e);
+            metricsService.recordFailedUpload("inventory", "processing_error");
             return ResponseEntity.badRequest().body("Error processing inventory file: " + e.getMessage());
         } finally {
-            metricsService.stopUploadTimer(timer);
+            metricsService.stopFileUploadTimer(timer);
         }
     }
 
@@ -95,18 +97,26 @@ public class InventoryController {
     )
     @PostMapping("/data")
     public ResponseEntity<String> uploadInventoryData(@RequestBody InventoryData inventoryData) {
-        Timer.Sample timer = metricsService.startUploadTimer();
-        logger.info("Starting inventory data ingestion - {} articles received",
-                   inventoryData.inventory().size());
+        Timer.Sample timer = metricsService.startDataProcessingTimer();
 
         try {
+            // Add null safety check
+            if (inventoryData == null || inventoryData.inventory() == null) {
+                logger.warn("Inventory data ingestion failed - invalid or null data provided");
+                metricsService.recordFailedUpload("inventory", "invalid_data");
+                return ResponseEntity.badRequest().body("Invalid inventory data provided");
+            }
+
+            logger.info("Starting inventory data ingestion - {} articles received",
+                       inventoryData.inventory().size());
+
             // Send to Kafka for downstream processing
             String jsonMessage = objectMapper.writeValueAsString(inventoryData);
             kafkaProducerService.sendMessage("INVENTORY_DATA: " + jsonMessage);
 
-            // Record metrics
-            metricsService.recordInventoryUpload(inventoryData.inventory().size());
-            metricsService.recordKafkaMessage();
+            // Record metrics with improved method
+            metricsService.recordSuccessfulUpload("inventory", inventoryData.inventory().size(), 0L);
+            metricsService.recordKafkaMessage("INVENTORY_DATA");
 
             logger.info("Inventory data ingestion completed successfully - {} articles processed",
                        inventoryData.inventory().size());
@@ -116,9 +126,10 @@ public class InventoryController {
 
         } catch (Exception e) {
             logger.error("Inventory data ingestion failed - error: {}", e.getMessage(), e);
+            metricsService.recordFailedUpload("inventory", "processing_error");
             return ResponseEntity.badRequest().body("Error processing inventory data: " + e.getMessage());
         } finally {
-            metricsService.stopUploadTimer(timer);
+            metricsService.stopDataProcessingTimer(timer);
         }
     }
 }

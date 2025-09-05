@@ -46,13 +46,14 @@ public class ProductController {
         @Parameter(description = "Products JSON file", required = true)
         @RequestParam("file") MultipartFile file) {
 
-        Timer.Sample timer = metricsService.startUploadTimer();
+        Timer.Sample timer = metricsService.startFileUploadTimer();
         logger.info("Starting product file upload - filename: {}, size: {} bytes",
                    file.getOriginalFilename(), file.getSize());
 
         try {
             if (file.isEmpty()) {
                 logger.warn("Product upload failed - empty file provided");
+                metricsService.recordFailedUpload("products", "empty_file");
                 return ResponseEntity.badRequest().body("File is empty");
             }
 
@@ -66,9 +67,9 @@ public class ProductController {
             String jsonMessage = objectMapper.writeValueAsString(productsData);
             kafkaProducerService.sendMessage("PRODUCT_UPLOAD: " + jsonMessage);
 
-            // Record metrics
-            metricsService.recordProductUpload(productsData.products().size());
-            metricsService.recordKafkaMessage();
+            // Record metrics with improved method
+            metricsService.recordSuccessfulUpload("products", productsData.products().size(), file.getSize());
+            metricsService.recordKafkaMessage("PRODUCT_UPLOAD");
 
             logger.info("Product upload completed successfully - {} products processed",
                        productsData.products().size());
@@ -78,9 +79,10 @@ public class ProductController {
 
         } catch (Exception e) {
             logger.error("Product upload failed - error: {}", e.getMessage(), e);
+            metricsService.recordFailedUpload("products", "processing_error");
             return ResponseEntity.badRequest().body("Error processing products file: " + e.getMessage());
         } finally {
-            metricsService.stopUploadTimer(timer);
+            metricsService.stopFileUploadTimer(timer);
         }
     }
 
@@ -95,18 +97,26 @@ public class ProductController {
     )
     @PostMapping("/data")
     public ResponseEntity<String> uploadProductsData(@RequestBody ProductsData productsData) {
-        Timer.Sample timer = metricsService.startUploadTimer();
-        logger.info("Starting product data ingestion - {} products received",
-                   productsData.products().size());
+        Timer.Sample timer = metricsService.startDataProcessingTimer();
 
         try {
+            // Add null safety check
+            if (productsData == null || productsData.products() == null) {
+                logger.warn("Product data ingestion failed - invalid or null data provided");
+                metricsService.recordFailedUpload("products", "invalid_data");
+                return ResponseEntity.badRequest().body("Invalid products data provided");
+            }
+
+            logger.info("Starting product data ingestion - {} products received",
+                       productsData.products().size());
+
             // Send to Kafka for downstream processing
             String jsonMessage = objectMapper.writeValueAsString(productsData);
             kafkaProducerService.sendMessage("PRODUCT_DATA: " + jsonMessage);
 
-            // Record metrics
-            metricsService.recordProductUpload(productsData.products().size());
-            metricsService.recordKafkaMessage();
+            // Record metrics with improved method
+            metricsService.recordSuccessfulUpload("products", productsData.products().size(), 0L);
+            metricsService.recordKafkaMessage("PRODUCT_DATA");
 
             logger.info("Product data ingestion completed successfully - {} products processed",
                        productsData.products().size());
@@ -116,8 +126,10 @@ public class ProductController {
 
         } catch (Exception e) {
             logger.error("Product data ingestion failed - error: {}", e.getMessage(), e);
+            metricsService.recordFailedUpload("products", "processing_error");
             return ResponseEntity.badRequest().body("Error processing products data: " + e.getMessage());
         } finally {
+            metricsService.stopDataProcessingTimer(timer);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.ikea.warehouse_data_ingestion_service.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.List;
 
 @Schema(description = "Product definition with required articles")

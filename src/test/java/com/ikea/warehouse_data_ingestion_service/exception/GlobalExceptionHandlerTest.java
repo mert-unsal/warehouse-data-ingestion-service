@@ -1,6 +1,5 @@
 package com.ikea.warehouse_data_ingestion_service.exception;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
