@@ -13,3 +13,27 @@ logging:
     org.springframework.kafka: ERROR
     org.springframework: WARN
     org.mockito: ERROR
+
+
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  topic:
+    product: ${KAFKA_TOPIC_PRODUCT:ikea.warehouse.product.update.topic}
+    product-error: ${KAFKA_TOPIC_PRODUCT_ERROR:ikea.warehouse.product.update.topic.error}
+    product-retry: ${KAFKA_TOPIC_PRODUCT_RETRY:ikea.warehouse.product.update.topic.retry}
+    inventory: ${KAFKA_TOPIC_INVENTORY:ikea.warehouse.inventory.update.topic}
+    inventory-error: ${KAFKA_TOPIC_INVENTORY_ERROR:ikea.warehouse.inventory.update.topic.error}
+    inventory-retry: ${KAFKA_TOPIC_INVENTORY_RETRY:ikea.warehouse.inventory.update.topic.retry}
+  producer:
+    retries: 3
+    batch-size: 16384
+    linger-ms: 1
+    buffer-memory: 33554432
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    acks: all
+    enable-idempotence: true
+    max-in-flight-requests-per-connection: 5
+  retry:
+    attempts: 3
+    backoff-delay: 1000
