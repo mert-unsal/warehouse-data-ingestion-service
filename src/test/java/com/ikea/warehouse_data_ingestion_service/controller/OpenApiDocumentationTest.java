@@ -21,17 +21,18 @@ class OpenApiDocumentationTest {
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("Should provide OpenAPI documentation at /api-docs")
+    @DisplayName("Should provide OpenAPI documentation at /v3/api-docs")
     void shouldProvideOpenApiDocs() throws Exception {
-        mockMvc.perform(get("/api-docs"))
+        mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"));
     }
 
     @Test
-    @DisplayName("Should provide Swagger UI at /swagger-ui.html")
+    @DisplayName("Should provide Swagger UI at /swagger-ui/index.html")
     void shouldProvideSwaggerUi() throws Exception {
-        mockMvc.perform(get("/swagger-ui.html"))
-                .andExpect(status().is3xxRedirection());
+        mockMvc.perform(get("/swagger-ui/index.html"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("text/html"));
     }
 }
