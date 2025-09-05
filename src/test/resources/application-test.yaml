@@ -1,0 +1,17 @@
+# Disable Kafka for tests
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9999
+    bootstrap-servers: localhost:9999
+
+logging:
+  level:
+    com.ikea.warehouse_data_ingestion_service: INFO
+    org.apache.kafka: ERROR
+    org.springframework.kafka: ERROR
+    org.springframework: WARN
+    org.mockito: ERROR

@@ -4,25 +4,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikea.warehouse_data_ingestion_service.data.InventoryData;
 import com.ikea.warehouse_data_ingestion_service.data.InventoryItem;
 import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
-import com.ikea.warehouse_data_ingestion_service.service.MetricsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(InventoryController.class)
+@ActiveProfiles("test")
 class InventoryControllerTest {
 
     @Autowired
@@ -33,9 +36,6 @@ class InventoryControllerTest {
 
     @MockBean
     private KafkaProducerService kafkaProducerService;
-
-    @MockBean
-    private MetricsService metricsService;
 
     @Test
     void uploadInventory_WithValidFile_ShouldReturnSuccess() throws Exception {
@@ -56,9 +56,9 @@ class InventoryControllerTest {
         // Act & Assert
         mockMvc.perform(multipart("/api/v1/inventory/upload").file(file))
             .andExpect(status().isOk())
-            .andExpect(content().string("Inventory uploaded successfully. 2 articles processed."));
+            .andExpect(content().string(containsString("Inventory uploaded successfully. 2 articles processed.")));
 
-        verify(kafkaProducerService).sendMessage(anyString());
+        verify(kafkaProducerService).sendInventoryData(any(InventoryData.class));
     }
 
     @Test
@@ -74,7 +74,8 @@ class InventoryControllerTest {
         // Act & Assert
         mockMvc.perform(multipart("/api/v1/inventory/upload").file(emptyFile))
             .andExpect(status().isBadRequest())
-            .andExpect(content().string("File is empty"));
+            .andExpect(jsonPath("$.message").value("File is empty"))
+            .andExpect(jsonPath("$.error").value("FILE_PROCESSING_ERROR"));
     }
 
     @Test
@@ -90,9 +91,9 @@ class InventoryControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testData)))
             .andExpect(status().isOk())
-            .andExpect(content().string("Inventory data processed successfully. 2 articles received."));
+            .andExpect(content().string(containsString("Inventory data processed successfully. 2 articles received.")));
 
-        verify(kafkaProducerService).sendMessage(anyString());
+        verify(kafkaProducerService).sendInventoryData(any(InventoryData.class));
     }
 
     @Test

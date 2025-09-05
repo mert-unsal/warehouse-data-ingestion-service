@@ -5,25 +5,28 @@ import com.ikea.warehouse_data_ingestion_service.data.ArticleAmount;
 import com.ikea.warehouse_data_ingestion_service.data.Product;
 import com.ikea.warehouse_data_ingestion_service.data.ProductsData;
 import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
-import com.ikea.warehouse_data_ingestion_service.service.MetricsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
+@ActiveProfiles("test")
 class ProductControllerTest {
 
     @Autowired
@@ -34,9 +37,6 @@ class ProductControllerTest {
 
     @MockBean
     private KafkaProducerService kafkaProducerService;
-
-    @MockBean
-    private MetricsService metricsService;
 
     @Test
     void uploadProducts_WithValidFile_ShouldReturnSuccess() throws Exception {
@@ -59,9 +59,9 @@ class ProductControllerTest {
         // Act & Assert
         mockMvc.perform(multipart("/api/v1/products/upload").file(file))
             .andExpect(status().isOk())
-            .andExpect(content().string("Products uploaded successfully. 1 products processed."));
+            .andExpect(content().string(containsString("Products uploaded successfully. 1 products processed.")));
 
-        verify(kafkaProducerService).sendMessage(anyString());
+        verify(kafkaProducerService).sendProductData(any(ProductsData.class));
     }
 
     @Test
@@ -77,7 +77,8 @@ class ProductControllerTest {
         // Act & Assert
         mockMvc.perform(multipart("/api/v1/products/upload").file(emptyFile))
             .andExpect(status().isBadRequest())
-            .andExpect(content().string("File is empty"));
+            .andExpect(jsonPath("$.message").value("File is empty"))
+            .andExpect(jsonPath("$.error").value("FILE_PROCESSING_ERROR"));
     }
 
     @Test
@@ -95,9 +96,9 @@ class ProductControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testData)))
             .andExpect(status().isOk())
-            .andExpect(content().string("Products data processed successfully. 1 products received."));
+            .andExpect(content().string(containsString("Products data processed successfully. 1 products received.")));
 
-        verify(kafkaProducerService).sendMessage(anyString());
+        verify(kafkaProducerService).sendProductData(any(ProductsData.class));
     }
 
     @Test

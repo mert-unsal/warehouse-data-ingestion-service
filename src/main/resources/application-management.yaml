@@ -3,7 +3,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,env,configprops,loggers
+        include: health,info,env,configprops,loggers
       base-path: /actuator
   endpoint:
     health:
@@ -11,27 +11,3 @@ management:
       show-components: always
     info:
       enabled: true
-    metrics:
-      enabled: true
-    prometheus:
-      enabled: true
-  prometheus:
-    metrics:
-      export:
-        enabled: true
-        step: 1m
-  metrics:
-    tags:
-      application: ${spring.application.name}
-      region: ${DEPLOYMENT_REGION:local}
-      environment: ${DEPLOYMENT_ENV:development}
-    export:
-      prometheus:
-        enabled: true
-        descriptions: true
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
-      sla:
-        http.server.requests: 50ms,100ms,200ms,500ms,1s,2s
-

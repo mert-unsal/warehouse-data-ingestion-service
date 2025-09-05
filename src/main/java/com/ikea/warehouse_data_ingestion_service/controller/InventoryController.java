@@ -2,10 +2,8 @@ package com.ikea.warehouse_data_ingestion_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikea.warehouse_data_ingestion_service.data.InventoryData;
+import com.ikea.warehouse_data_ingestion_service.exception.FileProcessingException;
 import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
-import com.ikea.warehouse_data_ingestion_service.service.MetricsService;
-import com.ikea.warehouse_data_ingestion_service.util.TraceContext;
-import io.micrometer.core.instrument.Timer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,13 +25,10 @@ public class InventoryController {
 
     private final ObjectMapper objectMapper;
     private final KafkaProducerService kafkaProducerService;
-    private final MetricsService metricsService;
 
-    public InventoryController(ObjectMapper objectMapper, KafkaProducerService kafkaProducerService,
-                             MetricsService metricsService) {
+    public InventoryController(ObjectMapper objectMapper, KafkaProducerService kafkaProducerService) {
         this.objectMapper = objectMapper;
         this.kafkaProducerService = kafkaProducerService;
-        this.metricsService = metricsService;
     }
 
     @Operation(
@@ -49,47 +44,28 @@ public class InventoryController {
             required = true,
             content = @Content(mediaType = "application/json")
         )
-        @RequestParam("file") MultipartFile file) {
+        @RequestParam("file") MultipartFile file) throws Exception {
 
-        String traceId = TraceContext.getCurrentTraceId();
-        Timer.Sample timer = metricsService.startFileUploadTimer();
+        logger.info("Starting inventory file upload - filename: {}, size: {} bytes",
+                   file.getOriginalFilename(), file.getSize());
 
-        logger.info("Starting inventory file upload - filename: {}, size: {} bytes, traceId: {}",
-                   file.getOriginalFilename(), file.getSize(), traceId);
-
-        try {
-            if (file.isEmpty()) {
-                logger.warn("Inventory upload failed - empty file provided, traceId: {}", traceId);
-                metricsService.recordFailedUpload("inventory", "empty_file");
-                return ResponseEntity.badRequest().body("File is empty");
-            }
-
-            // Parse the uploaded JSON file
-            InventoryData inventoryData = objectMapper.readValue(file.getInputStream(), InventoryData.class);
-
-            logger.info("Successfully parsed inventory file - {} articles found, traceId: {}",
-                       inventoryData.inventory().size(), traceId);
-
-            // Send to Kafka for downstream processing - now sending Java object directly
-            kafkaProducerService.sendInventoryData(inventoryData);
-
-            // Record metrics
-            metricsService.recordSuccessfulUpload("inventory", inventoryData.inventory().size(), file.getSize());
-            metricsService.recordKafkaMessage("INVENTORY_UPLOAD");
-
-            logger.info("Inventory upload completed successfully - {} articles processed, traceId: {}",
-                       inventoryData.inventory().size(), traceId);
-
-            return ResponseEntity.ok(String.format("Inventory uploaded successfully. %d articles processed. TraceId: %s",
-                inventoryData.inventory().size(), traceId));
-
-        } catch (Exception e) {
-            logger.error("Inventory upload failed - error: {}, traceId: {}", e.getMessage(), traceId, e);
-            metricsService.recordFailedUpload("inventory", "processing_error");
-            return ResponseEntity.badRequest().body("Error processing inventory file: " + e.getMessage());
-        } finally {
-            metricsService.stopFileUploadTimer(timer);
+        if (file.isEmpty()) {
+            logger.warn("Inventory upload failed - empty file provided");
+            throw new FileProcessingException("File is empty");
         }
+
+        InventoryData inventoryData = objectMapper.readValue(file.getInputStream(), InventoryData.class);
+
+        logger.info("Successfully parsed inventory file - {} articles found",
+                   inventoryData.inventory().size());
+
+        kafkaProducerService.sendInventoryData(inventoryData);
+
+        logger.info("Inventory upload completed successfully - {} articles processed",
+                   inventoryData.inventory().size());
+
+        return ResponseEntity.ok(String.format("Inventory uploaded successfully. %d articles processed.",
+            inventoryData.inventory().size()));
     }
 
     @Operation(
@@ -103,39 +79,21 @@ public class InventoryController {
     )
     @PostMapping("/data")
     public ResponseEntity<String> uploadInventoryData(@RequestBody InventoryData inventoryData) {
-        String traceId = TraceContext.getCurrentTraceId();
-        Timer.Sample timer = metricsService.startDataProcessingTimer();
 
-        try {
-            // Add null safety check
-            if (inventoryData == null || inventoryData.inventory() == null) {
-                logger.warn("Inventory data ingestion failed - invalid or null data provided, traceId: {}", traceId);
-                metricsService.recordFailedUpload("inventory", "invalid_data");
-                return ResponseEntity.badRequest().body("Invalid inventory data provided");
-            }
-
-            logger.info("Starting inventory data ingestion - {} articles received, traceId: {}",
-                       inventoryData.inventory().size(), traceId);
-
-            // Send to Kafka for downstream processing - now sending Java object directly
-            kafkaProducerService.sendInventoryData(inventoryData);
-
-            // Record metrics
-            metricsService.recordSuccessfulUpload("inventory", inventoryData.inventory().size(), 0L);
-            metricsService.recordKafkaMessage("INVENTORY_DATA");
-
-            logger.info("Inventory data ingestion completed successfully - {} articles processed, traceId: {}",
-                       inventoryData.inventory().size(), traceId);
-
-            return ResponseEntity.ok(String.format("Inventory data processed successfully. %d articles received. TraceId: %s",
-                inventoryData.inventory().size(), traceId));
-
-        } catch (Exception e) {
-            logger.error("Inventory data ingestion failed - error: {}, traceId: {}", e.getMessage(), traceId, e);
-            metricsService.recordFailedUpload("inventory", "processing_error");
-            return ResponseEntity.badRequest().body("Error processing products data: " + e.getMessage());
-        } finally {
-            metricsService.stopDataProcessingTimer(timer);
+        if (inventoryData == null || inventoryData.inventory() == null) {
+            logger.warn("Inventory data ingestion failed - invalid or null data provided");
+            throw new FileProcessingException("Invalid inventory data provided");
         }
+
+        logger.info("Starting inventory data ingestion - {} articles received",
+                   inventoryData.inventory().size());
+
+        kafkaProducerService.sendInventoryData(inventoryData);
+
+        logger.info("Inventory data ingestion completed successfully - {} articles processed",
+                   inventoryData.inventory().size());
+
+        return ResponseEntity.ok(String.format("Inventory data processed successfully. %d articles received.",
+            inventoryData.inventory().size()));
     }
 }

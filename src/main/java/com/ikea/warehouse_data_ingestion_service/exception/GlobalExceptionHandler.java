@@ -98,6 +98,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(errorResponse);
     }
 
+    @ExceptionHandler(FileProcessingException.class)
+    public ResponseEntity<ErrorResponse> handleFileProcessingException(FileProcessingException ex, HttpServletRequest request) {
+        log.error("File Processing Exception occurred: {}", ex.getMessage(), ex);
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            "FILE_PROCESSING_ERROR",
+            ex.getMessage(),
+            HttpStatus.BAD_REQUEST.value(),
+            request.getRequestURI(),
+            LocalDateTime.now().format(TIMESTAMP_FORMATTER)
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
         log.error("Illegal Argument Exception occurred: {}", ex.getMessage(), ex);
