@@ -113,9 +113,8 @@ public class ProductController {
             logger.info("Starting product data ingestion - {} products received, traceId: {}",
                        productsData.products().size(), traceId);
 
-            // Send to Kafka for downstream processing (trace ID will be added by interceptor)
-            String jsonMessage = objectMapper.writeValueAsString(productsData);
-            kafkaProducerService.sendMessage("PRODUCT_DATA: " + jsonMessage);
+            // Send to Kafka for downstream processing - now sending Java object directly
+            kafkaProducerService.sendProductData(productsData);
 
             // Record metrics with improved method
             metricsService.recordSuccessfulUpload("products", productsData.products().size(), 0L);
