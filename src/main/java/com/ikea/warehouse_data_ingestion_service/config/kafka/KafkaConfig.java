@@ -26,10 +26,6 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-        // Add tracing interceptor
-        configProps.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
-                       "com.ikea.warehouse_data_ingestion_service.config.kafka.KafkaProducerTracingInterceptor");
-
         // Add retry configuration for better reliability
         configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
         configProps.put(ProducerConfig.ACKS_CONFIG, "all");
