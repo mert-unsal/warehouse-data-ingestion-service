@@ -1,3 +1,4 @@
+# Default/Common Configuration
 spring:
   application:
     name: warehouse-data-ingestion-service
@@ -6,6 +7,8 @@ spring:
       max-file-size: 10MB
       max-request-size: 50MB
       enabled: true
+  profiles:
+    active: default,logging,management,kafka
 
 # OpenAPI/Swagger Configuration
 springdoc:
@@ -17,33 +20,18 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
-# Logging configuration
-logging:
-  level:
-    com.ikea.warehouse_data_ingestion_service: INFO
-    org.springframework.web.multipart: DEBUG
-    org.springframework.kafka: INFO
-  pattern:
-    console: "%d{HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-}] [%X{operation:-}] %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{traceId:-}] [%X{operation:-}] %logger{50} - %msg%n"
-  file:
-    name: logs/warehouse-ingestion.log
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /
 
-# Management and monitoring endpoints
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-  endpoint:
-    health:
-      show-details: always
-  prometheus:
-    metrics:
-      export:
-        enabled: true
-
-kafka:
-  bootstrap-servers: localhost:9092
-  topic: warehouse-events
-
+# Application Information
+info:
+  app:
+    name: ${spring.application.name}
+    description: Warehouse Data Ingestion Service for IKEA
+    version: '@project.version@'
+    encoding: '@project.build.sourceEncoding@'
+    java:
+      version: '@java.version@'
