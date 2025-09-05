@@ -22,3 +22,7 @@ logging:
   level:
     com.ikea.warehouse_data_ingestion_service: INFO
     org.springframework.web.multipart: DEBUG
+
+kafka:
+  bootstrap-servers: localhost:9092
+  topic: warehouse-events
