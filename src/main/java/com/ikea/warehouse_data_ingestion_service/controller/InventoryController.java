@@ -1,35 +1,30 @@
 package com.ikea.warehouse_data_ingestion_service.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikea.warehouse_data_ingestion_service.data.InventoryData;
 import com.ikea.warehouse_data_ingestion_service.exception.FileProcessingException;
-import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
+import com.ikea.warehouse_data_ingestion_service.service.InventoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+@RequiredArgsConstructor
+@Slf4j
+@Validated
 @RestController
 @RequestMapping("/api/v1/inventory")
 @Tag(name = "Inventory Controller", description = "Handles inventory data ingestion and management")
 public class InventoryController {
 
-    private static final Logger logger = LoggerFactory.getLogger(InventoryController.class);
-
-    private final ObjectMapper objectMapper;
-    private final KafkaProducerService kafkaProducerService;
-
-    public InventoryController(ObjectMapper objectMapper, KafkaProducerService kafkaProducerService) {
-        this.objectMapper = objectMapper;
-        this.kafkaProducerService = kafkaProducerService;
-    }
+    private final InventoryService inventoryService;
 
     @Operation(
         summary = "Upload inventory JSON file",
@@ -39,33 +34,18 @@ public class InventoryController {
     @ApiResponse(responseCode = "400", description = "Invalid file format or content")
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
     public ResponseEntity<String> uploadInventory(
-        @Parameter(
-            description = "Inventory JSON file",
-            required = true,
-            content = @Content(mediaType = "application/json")
-        )
+        @Parameter(description = "Inventory JSON file", required = true, content = @Content(mediaType = "application/json"))
         @RequestParam("file") MultipartFile file) throws Exception {
 
-        logger.info("Starting inventory file upload - filename: {}, size: {} bytes",
+        log.info("Starting inventory file upload - filename: {}, size: {} bytes",
                    file.getOriginalFilename(), file.getSize());
 
-        if (file.isEmpty()) {
-            logger.warn("Inventory upload failed - empty file provided");
-            throw new FileProcessingException("File is empty");
-        }
+        InventoryData inventoryData = inventoryService.proceedFile(file);
+        int processedCount = (inventoryData != null && inventoryData.inventory() != null) ? inventoryData.inventory().size() : 0;
 
-        InventoryData inventoryData = objectMapper.readValue(file.getInputStream(), InventoryData.class);
+        log.info("Inventory upload completed successfully");
 
-        logger.info("Successfully parsed inventory file - {} articles found",
-                   inventoryData.inventory().size());
-
-        kafkaProducerService.sendInventoryData(inventoryData);
-
-        logger.info("Inventory upload completed successfully - {} articles processed",
-                   inventoryData.inventory().size());
-
-        return ResponseEntity.ok(String.format("Inventory uploaded successfully. %d articles processed.",
-            inventoryData.inventory().size()));
+        return ResponseEntity.ok(String.format("Inventory uploaded successfully. %d articles processed.", processedCount));
     }
 
     @Operation(
@@ -81,16 +61,16 @@ public class InventoryController {
     public ResponseEntity<String> uploadInventoryData(@RequestBody InventoryData inventoryData) {
 
         if (inventoryData == null || inventoryData.inventory() == null) {
-            logger.warn("Inventory data ingestion failed - invalid or null data provided");
-            throw new FileProcessingException("Invalid inventory data provided");
+            log.warn("Inventory data ingestion failed - invalid or null data provided");
+            throw new FileProcessingException("Invalid inventory data provided", "FILE_PROCESSING_ERROR");
         }
 
-        logger.info("Starting inventory data ingestion - {} articles received",
+        log.info("Starting inventory data ingestion - {} articles received",
                    inventoryData.inventory().size());
 
-        kafkaProducerService.sendInventoryData(inventoryData);
+        inventoryService.publishInventoryData(inventoryData);
 
-        logger.info("Inventory data ingestion completed successfully - {} articles processed",
+        log.info("Inventory data ingestion completed successfully - {} articles processed",
                    inventoryData.inventory().size());
 
         return ResponseEntity.ok(String.format("Inventory data processed successfully. %d articles received.",
