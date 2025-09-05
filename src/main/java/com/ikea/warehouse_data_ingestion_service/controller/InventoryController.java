@@ -2,6 +2,7 @@ package com.ikea.warehouse_data_ingestion_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikea.warehouse_data_ingestion_service.data.InventoryData;
+import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,9 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class InventoryController {
 
     private final ObjectMapper objectMapper;
+    private final KafkaProducerService kafkaProducerService;
 
-    public InventoryController(ObjectMapper objectMapper) {
+    public InventoryController(ObjectMapper objectMapper, KafkaProducerService kafkaProducerService) {
         this.objectMapper = objectMapper;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     @Operation(
@@ -42,8 +45,9 @@ public class InventoryController {
             // Parse the uploaded JSON file
             InventoryData inventoryData = objectMapper.readValue(file.getInputStream(), InventoryData.class);
 
-            // For now, just log the data (later we'll add Kafka integration)
-            System.out.println("Received inventory data with " + inventoryData.inventory().size() + " articles");
+            // Send to Kafka for downstream processing
+            String jsonMessage = objectMapper.writeValueAsString(inventoryData);
+            kafkaProducerService.sendMessage("INVENTORY_UPLOAD: " + jsonMessage);
 
             return ResponseEntity.ok(String.format("Inventory uploaded successfully. %d articles processed.",
                 inventoryData.inventory().size()));
@@ -65,8 +69,9 @@ public class InventoryController {
     @PostMapping("/data")
     public ResponseEntity<String> uploadInventoryData(@RequestBody InventoryData inventoryData) {
         try {
-            // For now, just log the data (later we'll add Kafka integration)
-            System.out.println("Received inventory data with " + inventoryData.inventory().size() + " articles");
+            // Send to Kafka for downstream processing
+            String jsonMessage = objectMapper.writeValueAsString(inventoryData);
+            kafkaProducerService.sendMessage("INVENTORY_DATA: " + jsonMessage);
 
             return ResponseEntity.ok(String.format("Inventory data processed successfully. %d articles received.",
                 inventoryData.inventory().size()));

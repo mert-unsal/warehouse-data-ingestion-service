@@ -2,6 +2,7 @@ package com.ikea.warehouse_data_ingestion_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikea.warehouse_data_ingestion_service.data.ProductsData;
+import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,9 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductController {
 
     private final ObjectMapper objectMapper;
+    private final KafkaProducerService kafkaProducerService;
 
-    public ProductController(ObjectMapper objectMapper) {
+    public ProductController(ObjectMapper objectMapper, KafkaProducerService kafkaProducerService) {
         this.objectMapper = objectMapper;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     @Operation(
@@ -42,8 +45,9 @@ public class ProductController {
             // Parse the uploaded JSON file
             ProductsData productsData = objectMapper.readValue(file.getInputStream(), ProductsData.class);
 
-            // For now, just log the data (later we'll add Kafka integration)
-            System.out.println("Received products data with " + productsData.products().size() + " products");
+            // Send to Kafka for downstream processing
+            String jsonMessage = objectMapper.writeValueAsString(productsData);
+            kafkaProducerService.sendMessage("PRODUCT_UPLOAD: " + jsonMessage);
 
             return ResponseEntity.ok(String.format("Products uploaded successfully. %d products processed.",
                 productsData.products().size()));
@@ -65,8 +69,9 @@ public class ProductController {
     @PostMapping("/data")
     public ResponseEntity<String> uploadProductsData(@RequestBody ProductsData productsData) {
         try {
-            // For now, just log the data (later we'll add Kafka integration)
-            System.out.println("Received products data with " + productsData.products().size() + " products");
+            // Send to Kafka for downstream processing
+            String jsonMessage = objectMapper.writeValueAsString(productsData);
+            kafkaProducerService.sendMessage("PRODUCT_DATA: " + jsonMessage);
 
             return ResponseEntity.ok(String.format("Products data processed successfully. %d products received.",
                 productsData.products().size()));
