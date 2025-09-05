@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikea.warehouse_data_ingestion_service.data.ProductsData;
 import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
 import com.ikea.warehouse_data_ingestion_service.service.MetricsService;
-import com.ikea.warehouse_data_ingestion_service.service.TraceContext;
+import com.ikea.warehouse_data_ingestion_service.util.TraceContext;
 import io.micrometer.core.instrument.Timer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -1,4 +1,4 @@
-package com.ikea.warehouse_data_ingestion_service.service;
+package com.ikea.warehouse_data_ingestion_service.util;
 
 import org.slf4j.MDC;
 

@@ -1,6 +1,6 @@
 package com.ikea.warehouse_data_ingestion_service.config;
 
-import com.ikea.warehouse_data_ingestion_service.service.TraceContext;
+import com.ikea.warehouse_data_ingestion_service.util.TraceContext;
 import org.apache.kafka.clients.producer.ProducerInterceptor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;

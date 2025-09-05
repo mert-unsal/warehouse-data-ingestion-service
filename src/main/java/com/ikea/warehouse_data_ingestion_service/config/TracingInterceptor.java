@@ -1,6 +1,6 @@
 package com.ikea.warehouse_data_ingestion_service.config;
 
-import com.ikea.warehouse_data_ingestion_service.service.TraceContext;
+import com.ikea.warehouse_data_ingestion_service.util.TraceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
