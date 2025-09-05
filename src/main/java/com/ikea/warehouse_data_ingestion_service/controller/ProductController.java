@@ -42,9 +42,13 @@ public class ProductController {
     )
     @ApiResponse(responseCode = "200", description = "Products uploaded successfully")
     @ApiResponse(responseCode = "400", description = "Invalid file format or content")
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
     public ResponseEntity<String> uploadProducts(
-        @Parameter(description = "Products JSON file", required = true)
+        @Parameter(
+            description = "Products JSON file",
+            required = true,
+            content = @Content(mediaType = "application/json")
+        )
         @RequestParam("file") MultipartFile file) {
 
         String traceId = TraceContext.getCurrentTraceId();
