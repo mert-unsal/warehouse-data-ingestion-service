@@ -32,16 +32,16 @@ public class KafkaConsumerTracingInterceptor implements ConsumerInterceptor<Stri
                                record.topic(), traceId, record.key());
                 } else {
                     // Generate new trace ID if not found in message headers
-                    traceId = TraceContext.getCurrentTraceIdStatic();
+                    traceId = TraceContext.getCurrentTraceId();
                     logger.warn("No trace ID found in Kafka message, generated new one - Topic: {}, TraceId: {}, Key: {}",
                               record.topic(), traceId, record.key());
                 }
 
-                // Set trace ID in MDC for logging context
+                // Set trace context for this thread
+                String operation = String.format("KAFKA_CONSUME_%s", record.topic().toUpperCase());
                 MDC.put(TraceContext.TRACE_ID_MDC_KEY, traceId);
 
-                // Extract and set operation context
-                String operation = "kafka-consumer-" + record.topic();
+                // Set operation context
                 MDC.put(TraceContext.OPERATION_MDC_KEY, operation);
 
                 // Log message processing with trace context
@@ -68,7 +68,7 @@ public class KafkaConsumerTracingInterceptor implements ConsumerInterceptor<Stri
 
     @Override
     public void onCommit(Map<TopicPartition, OffsetAndMetadata> offsets) {
-        String traceId = TraceContext.getCurrentTraceIdStatic();
+        String traceId = TraceContext.getCurrentTraceId();
         logger.debug("Kafka consumer commit completed - TraceId: {}, Offsets: {}", traceId, offsets.size());
     }
 

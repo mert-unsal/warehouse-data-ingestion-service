@@ -13,12 +13,6 @@ public class TracingInterceptor implements HandlerInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(TracingInterceptor.class);
 
-    private final TraceContext traceContext;
-
-    public TracingInterceptor(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         // Check if trace ID exists in request header
@@ -26,20 +20,22 @@ public class TracingInterceptor implements HandlerInterceptor {
 
         if (traceId == null || traceId.trim().isEmpty()) {
             // Generate new trace ID if not present
-            traceId = traceContext.generateTraceId();
+            traceId = TraceContext.generateTraceId();
             logger.debug("Generated new trace ID: {}", traceId);
         } else {
-            logger.debug("Using existing trace ID: {}", traceId);
+            logger.debug("Using existing trace ID from header: {}", traceId);
         }
 
-        // Set trace ID in MDC for logging
-        traceContext.setTraceId(traceId);
+        // Set trace ID in MDC for this request thread
+        TraceContext.setTraceId(traceId);
 
-        // Set operation context based on request
-        String operation = extractOperation(request);
-        traceContext.setOperation(operation);
+        // Set operation context based on request path and method
+        String operation = String.format("%s_%s",
+            request.getMethod(),
+            request.getRequestURI().replaceAll("/", "_").toUpperCase());
+        TraceContext.setOperation(operation);
 
-        // Add trace ID to response header for client tracking
+        // Add trace ID to response header
         response.setHeader(TraceContext.TRACE_ID_HEADER, traceId);
 
         logger.info("Request started - Method: {}, URI: {}, TraceId: {}, Operation: {}",
@@ -51,33 +47,19 @@ public class TracingInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
                                Object handler, Exception ex) {
-        String traceId = traceContext.getCurrentTraceId();
-        String operation = traceContext.getCurrentOperation();
+        try {
+            String traceId = TraceContext.getCurrentTraceId();
 
-        logger.info("Request completed - Status: {}, TraceId: {}, Operation: {}",
-                   response.getStatus(), traceId, operation);
-
-        if (ex != null) {
-            logger.error("Request failed with exception - TraceId: {}, Operation: {}",
-                        traceId, operation, ex);
+            if (ex != null) {
+                logger.error("Request completed with error - Method: {}, URI: {}, Status: {}, TraceId: {}",
+                           request.getMethod(), request.getRequestURI(), response.getStatus(), traceId, ex);
+            } else {
+                logger.info("Request completed successfully - Method: {}, URI: {}, Status: {}, TraceId: {}",
+                           request.getMethod(), request.getRequestURI(), response.getStatus(), traceId);
+            }
+        } finally {
+            // Clean up MDC to prevent memory leaks
+            TraceContext.clearTrace();
         }
-
-        // Clear MDC after request completion
-        traceContext.clearAll();
-    }
-
-    private String extractOperation(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        String method = request.getMethod();
-
-        // Extract operation from URI patterns
-        if (uri.contains("/products/upload")) return "product-file-upload";
-        if (uri.contains("/products/data")) return "product-data-ingestion";
-        if (uri.contains("/inventory/upload")) return "inventory-file-upload";
-        if (uri.contains("/inventory/data")) return "inventory-data-ingestion";
-        if (uri.contains("/kafka/send")) return "kafka-message-send";
-
-        // Default operation format
-        return method.toLowerCase() + "-" + uri.replaceAll("/", "-").replaceAll("^-|-$", "");
     }
 }

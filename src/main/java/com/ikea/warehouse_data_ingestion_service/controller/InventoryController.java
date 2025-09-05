@@ -28,14 +28,12 @@ public class InventoryController {
     private final ObjectMapper objectMapper;
     private final KafkaProducerService kafkaProducerService;
     private final MetricsService metricsService;
-    private final TraceContext traceContext;
 
     public InventoryController(ObjectMapper objectMapper, KafkaProducerService kafkaProducerService,
-                             MetricsService metricsService, TraceContext traceContext) {
+                             MetricsService metricsService) {
         this.objectMapper = objectMapper;
         this.kafkaProducerService = kafkaProducerService;
         this.metricsService = metricsService;
-        this.traceContext = traceContext;
     }
 
     @Operation(
@@ -49,7 +47,7 @@ public class InventoryController {
         @Parameter(description = "Inventory JSON file", required = true)
         @RequestParam("file") MultipartFile file) {
 
-        String traceId = traceContext.getCurrentTraceId();
+        String traceId = TraceContext.getCurrentTraceId();
         Timer.Sample timer = metricsService.startFileUploadTimer();
 
         logger.info("Starting inventory file upload - filename: {}, size: {} bytes, traceId: {}",
@@ -72,7 +70,7 @@ public class InventoryController {
             String jsonMessage = objectMapper.writeValueAsString(inventoryData);
             kafkaProducerService.sendMessage("INVENTORY_UPLOAD: " + jsonMessage);
 
-            // Record metrics with improved method
+            // Record metrics
             metricsService.recordSuccessfulUpload("inventory", inventoryData.inventory().size(), file.getSize());
             metricsService.recordKafkaMessage("INVENTORY_UPLOAD");
 
@@ -102,7 +100,7 @@ public class InventoryController {
     )
     @PostMapping("/data")
     public ResponseEntity<String> uploadInventoryData(@RequestBody InventoryData inventoryData) {
-        String traceId = traceContext.getCurrentTraceId();
+        String traceId = TraceContext.getCurrentTraceId();
         Timer.Sample timer = metricsService.startDataProcessingTimer();
 
         try {
@@ -116,11 +114,11 @@ public class InventoryController {
             logger.info("Starting inventory data ingestion - {} articles received, traceId: {}",
                        inventoryData.inventory().size(), traceId);
 
-            // Send to Kafka for downstream processing (trace ID will be added by interceptor)
+            // Send to Kafka for downstream processing
             String jsonMessage = objectMapper.writeValueAsString(inventoryData);
             kafkaProducerService.sendMessage("INVENTORY_DATA: " + jsonMessage);
 
-            // Record metrics with improved method
+            // Record metrics
             metricsService.recordSuccessfulUpload("inventory", inventoryData.inventory().size(), 0L);
             metricsService.recordKafkaMessage("INVENTORY_DATA");
 
@@ -133,7 +131,7 @@ public class InventoryController {
         } catch (Exception e) {
             logger.error("Inventory data ingestion failed - error: {}, traceId: {}", e.getMessage(), traceId, e);
             metricsService.recordFailedUpload("inventory", "processing_error");
-            return ResponseEntity.badRequest().body("Error processing inventory data: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error processing products data: " + e.getMessage());
         } finally {
             metricsService.stopDataProcessingTimer(timer);
         }

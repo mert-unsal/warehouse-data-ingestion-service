@@ -28,14 +28,12 @@ public class ProductController {
     private final ObjectMapper objectMapper;
     private final KafkaProducerService kafkaProducerService;
     private final MetricsService metricsService;
-    private final TraceContext traceContext;
 
     public ProductController(ObjectMapper objectMapper, KafkaProducerService kafkaProducerService,
-                             MetricsService metricsService, TraceContext traceContext) {
+                             MetricsService metricsService) {
         this.objectMapper = objectMapper;
         this.kafkaProducerService = kafkaProducerService;
         this.metricsService = metricsService;
-        this.traceContext = traceContext;
     }
 
     @Operation(
@@ -49,7 +47,7 @@ public class ProductController {
         @Parameter(description = "Products JSON file", required = true)
         @RequestParam("file") MultipartFile file) {
 
-        String traceId = traceContext.getCurrentTraceId();
+        String traceId = TraceContext.getCurrentTraceId();
         Timer.Sample timer = metricsService.startFileUploadTimer();
 
         logger.info("Starting product file upload - filename: {}, size: {} bytes, traceId: {}",
@@ -102,7 +100,7 @@ public class ProductController {
     )
     @PostMapping("/data")
     public ResponseEntity<String> uploadProductsData(@RequestBody ProductsData productsData) {
-        String traceId = traceContext.getCurrentTraceId();
+        String traceId = TraceContext.getCurrentTraceId();
         Timer.Sample timer = metricsService.startDataProcessingTimer();
 
         try {
