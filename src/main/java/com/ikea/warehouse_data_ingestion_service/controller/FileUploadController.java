@@ -29,6 +29,7 @@ public class FileUploadController {
     public FileUploadController(FileIngestionService fileIngestionService) {
         this.fileIngestionService = fileIngestionService;
     }
+
     @PostMapping(value = "/ingest", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "Ingest warehouse data files",
@@ -73,8 +74,11 @@ public class FileUploadController {
                                             name = "JSON Parsing Error",
                                             value = """
                                                     {
-                                                      "error": "FILE_PARSING_ERROR",
-                                                      "message": "Invalid JSON format"
+                                                      "error": "FILE_PROCESSING_ERROR",
+                                                      "message": "Failed to process uploaded file: Invalid JSON format",
+                                                      "status": 400,
+                                                      "path": "/api/files/ingest",
+                                                      "timestamp": "2025-09-05T12:15:55"
                                                     }
                                                     """
                                     )
@@ -101,13 +105,5 @@ public class FileUploadController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
         return ResponseEntity.ok(fileIngestionService.ingest(inventory, products));
-    }
-
-    @ExceptionHandler(IOException.class)
-    public ResponseEntity<Map<String, Object>> handleIOException(IOException ex) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("error", "FILE_PARSING_ERROR");
-        error.put("message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }

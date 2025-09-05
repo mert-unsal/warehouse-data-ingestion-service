@@ -1,6 +1,11 @@
 spring:
   application:
     name: warehouse-data-ingestion-service
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+      enabled: true
 
 # OpenAPI/Swagger Configuration
 springdoc:
@@ -11,3 +16,9 @@ springdoc:
     enabled: true
     operations-sorter: method
     tags-sorter: alpha
+
+# Logging configuration
+logging:
+  level:
+    com.ikea.warehouse_data_ingestion_service: INFO
+    org.springframework.web.multipart: DEBUG
