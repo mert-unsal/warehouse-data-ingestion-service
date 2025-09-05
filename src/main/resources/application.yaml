@@ -8,7 +8,7 @@ spring:
       max-request-size: 50MB
       enabled: true
   profiles:
-    active: default,logging,management,kafka
+    active: default,logging,management,kafka,otel
 
 # OpenAPI/Swagger Configuration
 springdoc:

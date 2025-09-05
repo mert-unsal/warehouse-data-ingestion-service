@@ -1,0 +1,30 @@
+# OpenTelemetry Configuration Profile
+otel:
+  service:
+    name: ${spring.application.name}
+    version: 1.0.0
+  exporter:
+    jaeger:
+      endpoint: ${OTEL_EXPORTER_JAEGER_ENDPOINT:http://localhost:14250}
+    prometheus:
+      port: ${OTEL_EXPORTER_PROMETHEUS_PORT:9464}
+  metrics:
+    exporter: prometheus
+  traces:
+    exporter: jaeger
+  instrumentation:
+    spring-boot:
+      enabled: true
+    kafka:
+      enabled: true
+    http:
+      enabled: true
+    jdbc:
+      enabled: true
+  resource:
+    attributes:
+      service.name: ${spring.application.name}
+      service.version: 1.0.0
+      deployment.environment: ${DEPLOYMENT_ENV:development}
+      service.namespace: ikea.warehouse
+

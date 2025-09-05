@@ -285,3 +285,35 @@ java.lang.IllegalArgumentException: Unexpected message type: class org.apache.ka
 	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 2025-09-05 22:17:51 [kafka-producer-network-thread | warehouse-data-ingestion-service-producer-1] INFO  [0f93be3a1ceb4535b598030304f6a9fc] [] c.i.w.service.KafkaProducerService - Sent message=[InventoryData] with key=[inventory] to topic=[warehouse-events] with offset=[1]
+2025-09-05 22:23:05 [http-nio-8080-exec-6] INFO  [] [] org.springdoc.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 190 ms
+2025-09-05 22:25:45 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  [3f10ab9713d64dfc878a29af165f108e] [KAFKA_CONSUME_WAREHOUSE-EVENTS] o.s.kafka.listener.KafkaMessageListenerContainer - warehouse-ingestion-group: partitions revoked: [warehouse-events-0]
+2025-09-05 22:25:45 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  [3f10ab9713d64dfc878a29af165f108e] [KAFKA_CONSUME_WAREHOUSE-EVENTS] c.i.w.config.kafka.KafkaConsumerTracingInterceptor - Kafka consumer tracing interceptor closed
+2025-09-05 22:25:45 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  [3f10ab9713d64dfc878a29af165f108e] [KAFKA_CONSUME_WAREHOUSE-EVENTS] o.s.kafka.listener.KafkaMessageListenerContainer - warehouse-ingestion-group: Consumer stopped
+2025-09-05 22:25:45 [SpringApplicationShutdownHook] INFO  [] [] o.s.boot.web.embedded.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-09-05 22:25:45 [tomcat-shutdown] INFO  [] [] o.s.boot.web.embedded.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-09-05 22:25:45 [SpringApplicationShutdownHook] INFO  [] [] c.i.w.config.kafka.KafkaProducerTracingInterceptor - Kafka producer tracing interceptor closed
+2025-09-05 22:25:48 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - Starting WarehouseDataIngestionServiceApplication using Java 21 with PID 27718 (/Users/mertunsal/Workspace/java/ikea/warehouse-data-ingestion-service/target/classes started by mertunsal in /Users/mertunsal/Workspace/java/ikea/warehouse-data-ingestion-service)
+2025-09-05 22:25:48 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - The following 4 profiles are active: "default", "logging", "management", "kafka"
+2025-09-05 22:25:49 [main] INFO  [] [] o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-09-05 22:25:49 [main] INFO  [] [] org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-09-05 22:25:49 [main] INFO  [] [] org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.44]
+2025-09-05 22:25:49 [main] INFO  [] [] o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-09-05 22:25:49 [main] INFO  [] [] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1148 ms
+2025-09-05 22:25:50 [main] INFO  [] [] o.s.v.beanvalidation.OptionalValidatorFactoryBean - Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2025-09-05 22:25:50 [main] INFO  [] [] o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 7 endpoints beneath base path '/actuator'
+2025-09-05 22:25:50 [main] INFO  [] [] o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-09-05 22:25:50 [main] INFO  [] [] c.i.w.WarehouseDataIngestionServiceApplication - Started WarehouseDataIngestionServiceApplication in 2.506 seconds (process running for 3.731)
+2025-09-05 22:25:50 [RMI TCP Connection(7)-127.0.0.1] INFO  [] [] o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-09-05 22:25:50 [RMI TCP Connection(7)-127.0.0.1] INFO  [] [] org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-09-05 22:25:50 [RMI TCP Connection(7)-127.0.0.1] INFO  [] [] org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-09-05 22:26:44 [http-nio-8080-exec-4] INFO  [] [] org.springdoc.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 180 ms
+2025-09-05 22:26:52 [http-nio-8080-exec-7] INFO  [41bb2a77990e4e55a759f252a4fd3101] [POST__API_V1_PRODUCTS_UPLOAD] c.i.w.config.TracingInterceptor - Request started - Method: POST, URI: /api/v1/products/upload, TraceId: 41bb2a77990e4e55a759f252a4fd3101, Operation: POST__API_V1_PRODUCTS_UPLOAD
+2025-09-05 22:26:52 [http-nio-8080-exec-7] INFO  [41bb2a77990e4e55a759f252a4fd3101] [POST__API_V1_PRODUCTS_UPLOAD] c.i.w.controller.ProductController - Starting product file upload - filename: products.json, size: 618 bytes, traceId: 41bb2a77990e4e55a759f252a4fd3101
+2025-09-05 22:26:52 [http-nio-8080-exec-7] INFO  [41bb2a77990e4e55a759f252a4fd3101] [POST__API_V1_PRODUCTS_UPLOAD] c.i.w.controller.ProductController - Successfully parsed products file - 2 products found, traceId: 41bb2a77990e4e55a759f252a4fd3101
+2025-09-05 22:26:52 [http-nio-8080-exec-7] INFO  [41bb2a77990e4e55a759f252a4fd3101] [POST__API_V1_PRODUCTS_UPLOAD] c.i.w.config.kafka.KafkaProducerTracingInterceptor - Kafka producer tracing interceptor configured
+2025-09-05 22:26:53 [http-nio-8080-exec-7] INFO  [41bb2a77990e4e55a759f252a4fd3101] [POST__API_V1_PRODUCTS_UPLOAD] c.i.w.controller.ProductController - Product upload completed successfully - 2 products processed, traceId: 41bb2a77990e4e55a759f252a4fd3101
+2025-09-05 22:26:53 [http-nio-8080-exec-7] INFO  [41bb2a77990e4e55a759f252a4fd3101] [POST__API_V1_PRODUCTS_UPLOAD] c.i.w.config.TracingInterceptor - Request completed successfully - Method: POST, URI: /api/v1/products/upload, Status: 200, TraceId: 41bb2a77990e4e55a759f252a4fd3101
+2025-09-05 22:26:53 [kafka-producer-network-thread | warehouse-data-ingestion-service-producer-1] INFO  [714e28df2516459c8f8a291b0ed9d901] [] c.i.w.service.KafkaProducerService - Sent message=[ProductsData] with key=[product] to topic=[warehouse-events] with offset=[2]
+2025-09-05 22:31:57 [SpringApplicationShutdownHook] INFO  [] [] o.s.boot.web.embedded.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-09-05 22:31:57 [tomcat-shutdown] INFO  [] [] o.s.boot.web.embedded.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-09-05 22:31:57 [SpringApplicationShutdownHook] INFO  [] [] c.i.w.config.kafka.KafkaProducerTracingInterceptor - Kafka producer tracing interceptor closed
