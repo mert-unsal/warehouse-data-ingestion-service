@@ -12,16 +12,6 @@ kafka:
     acks: all
     enable-idempotence: true
     max-in-flight-requests-per-connection: 5
-  consumer:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    group-id: ${KAFKA_CONSUMER_GROUP:warehouse-ingestion-group}
-    auto-offset-reset: earliest
-    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-    enable-auto-commit: false
-    max-poll-records: 10
-    properties:
-      spring.json.trusted.packages: "com.ikea.warehouse_data_ingestion_service.data"
   retry:
     attempts: 3
     backoff-delay: 1000
