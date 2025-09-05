@@ -35,3 +35,29 @@ info:
     encoding: '@project.build.sourceEncoding@'
     java:
       version: '@java.version@'
+
+otel:
+  resource:
+    attributes:
+      deployment.environment: ${ACTIVE_PROFILE:dev}
+      service:
+        name: ${OTEL_SERVICE_NAME:warehouse-data-ingestion-service}
+        namespace: ${OTEL_SERVICE_NAMESPACE:ikea-dev}
+  exporter:
+    otlp:
+      endpoint: ""
+      compression: ${OTEL_EXPORTER_OTLP_METRICS_COMPRESSION:gzip}
+      protocol: ${OTEL_EXPORTER_OTLP_PROTOCOL:http/protobuf}
+  instrumentation:
+    spring-webflux:
+      enabled: false
+    spring-kafka:
+      enabled: true
+  traces:
+    exporter: console
+    sampler.arg: ${OTEL_TRACES_SAMPLER_ARG:0.1}
+    sampler: ${OTEL_TRACES_SAMPLER:always_on}
+  logs:
+    exporter: console
+  metrics:
+    exporter: console
