@@ -1,6 +1,6 @@
 package com.ikea.warehouse_data_ingestion_service.controller;
 
-import com.ikea.warehouse_data_ingestion_service.data.ProductsData;
+import com.ikea.warehouse_data_ingestion_service.data.dto.ProductsData;
 import com.ikea.warehouse_data_ingestion_service.exception.FileProcessingException;
 import com.ikea.warehouse_data_ingestion_service.service.ProductService;
 import com.ikea.warehouse_data_ingestion_service.util.ErrorMessages;
@@ -13,12 +13,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.validation.Valid;
+
+import static com.ikea.warehouse_data_ingestion_service.util.ErrorTypes.FILE_PROCESSING_ERROR;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/api/v1/products")
 @Tag(name = "Product Controller", description = "Handles product data ingestion and management")
 public class ProductController {
@@ -45,12 +50,12 @@ public class ProductController {
 
         if (file.isEmpty()) {
             log.warn("Product upload failed - empty file provided");
-            throw new FileProcessingException(ErrorMessages.FILE_EMPTY, "FILE_PROCESSING_ERROR");
+            throw new FileProcessingException(ErrorMessages.FILE_EMPTY, FILE_PROCESSING_ERROR);
         }
 
         productService.proceedFile(file);
         log.info("Product upload completed successfully");
-        return ResponseEntity.ok("Products uploaded successfully.");
+        return ResponseEntity.ok(ErrorMessages.PRODUCTS_UPLOADED_SUCCESS);
     }
 
     @Operation(
@@ -63,12 +68,14 @@ public class ProductController {
         content = @Content(schema = @Schema(implementation = String.class))
     )
     @PostMapping("/data")
-    public ResponseEntity<String> uploadProductsData(@RequestBody ProductsData productsData) {
+    public ResponseEntity<String> uploadProductsData(@Valid @RequestBody com.ikea.warehouse_data_ingestion_service.data.request.ProductUpdateRequest request) {
 
-        if (productsData == null || productsData.products() == null) {
+        if (request == null || request.products() == null) {
             log.warn("Product data ingestion failed - invalid or null data provided");
-            throw new FileProcessingException(ErrorMessages.INVALID_PRODUCTS_DATA, "FILE_PROCESSING_ERROR");
+            throw new FileProcessingException(ErrorMessages.INVALID_PRODUCTS_DATA, FILE_PROCESSING_ERROR);
         }
+
+        var productsData = new ProductsData(request.products());
 
         log.info("Starting product data ingestion - {} products received",
                    productsData.products().size());
