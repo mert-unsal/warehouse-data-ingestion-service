@@ -1,6 +1,6 @@
 package com.ikea.warehouse_data_ingestion_service.service;
 
-import com.ikea.warehouse_data_ingestion_service.data.ErrorKafkaMessage;
+import com.ikea.warehouse_data_ingestion_service.data.event.KafkaCommonErrorEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -63,14 +63,14 @@ public class KafkaProducerService {
     }
 
     private void sendErrorMessage(String errorTopic, String key, Object originalMessage, String originalTopic, Throwable throwable) {
-        ErrorKafkaMessage errorKafkaMessage = new ErrorKafkaMessage(
+        KafkaCommonErrorEvent kafkaCommonErrorEvent = new KafkaCommonErrorEvent(
                 key,
                 originalMessage,
                 originalTopic,
                 throwable.getMessage(),
-                System.currentTimeMillis()
+                Long.valueOf(System.currentTimeMillis())
         );
-        kafkaTemplate.send(errorTopic, key, errorKafkaMessage);
+        kafkaTemplate.send(errorTopic, key, kafkaCommonErrorEvent);
         log.info("Sent error message to error topic '{}' for key '{}'", errorTopic, key);
     }
 }
