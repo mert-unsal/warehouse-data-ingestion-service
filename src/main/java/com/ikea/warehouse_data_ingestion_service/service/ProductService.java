@@ -16,7 +16,9 @@ public class ProductService {
     private final KafkaProducerService kafkaProducerService;
 
     public void publishProductData(ProductsData productsData) {
-        kafkaProducerService.sendProductData(productsData);
+        String key = String.valueOf(productsData.hashCode());
+        kafkaProducerService.sendProductUpdate(key, productsData);
+        log.info("Published product data to Kafka with key '{}'", key);
     }
 
     public void proceedFile(MultipartFile file) {
