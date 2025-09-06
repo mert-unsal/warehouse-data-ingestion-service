@@ -78,8 +78,7 @@ public class KafkaConfig {
         // Enable manual acknowledgment for better control
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
 
-        // Set concurrency level
-        factory.setConcurrency(1);
+        factory.setConcurrency(4);
 
         return factory;
     }
