@@ -1,8 +1,5 @@
 package com.ikea.warehouse_data_ingestion_service.config.kafka;
 
-import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.context.propagation.TextMapPropagator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -35,25 +32,6 @@ public class KafkaConfig {
     @Value("${spring.kafka.consumer.group-id}")
     private String consumerGroupId;
 
-    /**
-     * Create OpenTelemetry Tracer bean for dependency injection
-     */
-    @Bean
-    public Tracer tracer() {
-        return GlobalOpenTelemetry.getTracer("warehouse-data-ingestion-service", "1.0.0");
-    }
-
-    /**
-     * Create TextMapPropagator bean for trace context propagation
-     */
-    @Bean
-    public TextMapPropagator textMapPropagator() {
-        return GlobalOpenTelemetry.getPropagators().getTextMapPropagator();
-    }
-
-    /**
-     * Producer configuration - OpenTelemetry instrumentation is automatic with Spring Boot starter
-     */
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
@@ -68,29 +46,14 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         configProps.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
 
-        DefaultKafkaProducerFactory<String, Object> producerFactory =
-            new DefaultKafkaProducerFactory<>(configProps);
-
-        log.info("Kafka Producer configured with automatic OpenTelemetry instrumentation for bootstrap servers: {}", bootstrapServers);
-
-        return producerFactory;
+        return new DefaultKafkaProducerFactory<>(configProps);
     }
 
-    /**
-     * KafkaTemplate - trace propagation is handled automatically by OpenTelemetry Spring Boot starter
-     */
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
-        KafkaTemplate<String, Object> template = new KafkaTemplate<>(producerFactory());
-
-        log.info("KafkaTemplate created with automatic OpenTelemetry trace propagation support");
-
-        return template;
+        return new KafkaTemplate<>(producerFactory());
     }
 
-    /**
-     * Consumer configuration - OpenTelemetry instrumentation is automatic with Spring Boot starter
-     */
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> configProps = new HashMap<>();
@@ -103,17 +66,9 @@ public class KafkaConfig {
         configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
-        DefaultKafkaConsumerFactory<String, Object> consumerFactory =
-            new DefaultKafkaConsumerFactory<>(configProps);
-
-        log.info("Kafka Consumer configured with automatic OpenTelemetry instrumentation for group: {}", consumerGroupId);
-
-        return consumerFactory;
+        return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
-    /**
-     * Kafka listener container factory
-     */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
@@ -124,9 +79,7 @@ public class KafkaConfig {
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
 
         // Set concurrency level
-        factory.setConcurrency(3);
-
-        log.info("Kafka Listener Container Factory configured with automatic OpenTelemetry instrumentation");
+        factory.setConcurrency(1);
 
         return factory;
     }

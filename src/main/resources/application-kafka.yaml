@@ -13,7 +13,6 @@ spring:
       properties:
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
-        # OpenTelemetry instrumentation is automatically applied
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -23,17 +22,12 @@ spring:
       properties:
         spring.json.trusted.packages: "com.ikea.warehouse_data_ingestion_service.data"
 
-# Application-specific Kafka topic configuration
 app:
   kafka:
     topics:
-      # Primary topics
+      # Primary topics - using your existing naming convention
       product: ${KAFKA_TOPIC_PRODUCT:ikea.warehouse.product.update.topic}
       inventory: ${KAFKA_TOPIC_INVENTORY:ikea.warehouse.inventory.update.topic}
-      # Event-based topics for new implementation
-      product-updates: ${KAFKA_TOPIC_PRODUCT_UPDATES:product-updates}
-      inventory-updates: ${KAFKA_TOPIC_INVENTORY_UPDATES:inventory-updates}
-      warehouse-events: ${KAFKA_TOPIC_WAREHOUSE_EVENTS:warehouse-events}
       # Error handling topics
       product-error: ${KAFKA_TOPIC_PRODUCT_ERROR:ikea.warehouse.product.update.topic.error}
       product-retry: ${KAFKA_TOPIC_PRODUCT_RETRY:ikea.warehouse.product.update.topic.retry}

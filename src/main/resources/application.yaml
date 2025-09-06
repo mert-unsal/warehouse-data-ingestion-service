@@ -49,14 +49,14 @@ otel:
       compression: ${OTEL_EXPORTER_OTLP_METRICS_COMPRESSION:gzip}
       protocol: ${OTEL_EXPORTER_OTLP_PROTOCOL:http/protobuf}
   instrumentation:
-    spring-webflux:
-      enabled: false
-    spring-kafka:
+    kafka:
       enabled: true
+      autoconfigure-interceptor: true
+      experimental-span-attributes: true
   traces:
     exporter: console
     sampler.arg: ${OTEL_TRACES_SAMPLER_ARG:0.1}
-    sampler: ${OTEL_TRACES_SAMPLER:always_on}
+    sampler: always_on
   logs:
     exporter: console
   metrics:
