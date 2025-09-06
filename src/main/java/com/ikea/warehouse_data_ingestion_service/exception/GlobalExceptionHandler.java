@@ -1,18 +1,18 @@
 package com.ikea.warehouse_data_ingestion_service.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ikea.warehouse_data_ingestion_service.util.ErrorMessages;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import com.ikea.warehouse_data_ingestion_service.util.ErrorMessages;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -22,18 +22,31 @@ import static com.ikea.warehouse_data_ingestion_service.util.ErrorTypes.FILE_PRO
 
 @Slf4j
 @RestControllerAdvice
-@Hidden // Hide from OpenAPI documentation
+@Hidden
 public class GlobalExceptionHandler {
 
     private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<ErrorResponse> handleIOException(IOException ex, HttpServletRequest request) {
-        log.error("IO Exception occurred: {}", ex.getMessage(), ex);
+    public ResponseEntity<ErrorResponse> handleIOException(IOException ioException, HttpServletRequest request) {
+        log.error("IO Exception occurred: {}", ioException.getMessage(), ioException);
 
         ErrorResponse errorResponse = new ErrorResponse(
-            FILE_PROCESSING_ERROR,
-            "Failed to process uploaded file: " + ex.getMessage(),
+                FILE_PROCESSING_ERROR,
+                STR."Failed to process uploaded file: \{ioException.getMessage()}",
+                HttpStatus.BAD_REQUEST.value(),
+                request.getRequestURI(),
+                LocalDateTime.now().format(TIMESTAMP_FORMATTER)
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(KafkaProduceFailedException.class)
+    public ResponseEntity<ErrorResponse> handleKafkaMessage(KafkaProduceFailedException kafkaProduceFailedException, HttpServletRequest request) {
+        log.error("KafkaProduceFailedException Exception occurred: {}", kafkaProduceFailedException.getMessage(), kafkaProduceFailedException);
+        ErrorResponse errorResponse = new ErrorResponse(
+            FILE_PROCESSING_ERROR, STR."Failed to process uploaded file: \{kafkaProduceFailedException.getMessage()}",
             HttpStatus.BAD_REQUEST.value(),
             request.getRequestURI(),
             LocalDateTime.now().format(TIMESTAMP_FORMATTER)

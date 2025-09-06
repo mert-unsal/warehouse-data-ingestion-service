@@ -1,10 +1,14 @@
 package com.ikea.warehouse_data_ingestion_service.data.event;
 
-import com.ikea.warehouse_data_ingestion_service.data.dto.Product;
+import com.ikea.warehouse_data_ingestion_service.data.dto.ArticleAmount;
+import lombok.Builder;
 
+import java.time.Instant;
 import java.util.List;
 
+@Builder(toBuilder = true)
 public record ProductUpdateEvent(
-    List<Product> products,
-    Long timestamp
+        String name,
+        List<ArticleAmount> containArticles,
+        Instant fileCreatedAt
 ) {}

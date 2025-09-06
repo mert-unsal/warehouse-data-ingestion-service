@@ -1,10 +1,8 @@
 package com.ikea.warehouse_data_ingestion_service.data.event;
 
-import com.ikea.warehouse_data_ingestion_service.data.dto.InventoryItem;
+import lombok.Builder;
 
-import java.util.List;
+import java.time.Instant;
 
-public record InventoryUpdateEvent(
-    List<InventoryItem> inventory,
-    Long timestamp
-) {}
+@Builder(toBuilder = true)
+public record InventoryUpdateEvent(String artId, String name, String stock, Instant fileCreatedAt) {}

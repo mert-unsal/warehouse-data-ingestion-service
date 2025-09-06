@@ -1,15 +1,15 @@
 package com.ikea.warehouse_data_ingestion_service.service;
 
-import com.ikea.warehouse_data_ingestion_service.data.event.KafkaCommonErrorEvent;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
+import com.ikea.warehouse_data_ingestion_service.exception.KafkaProduceFailedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -19,57 +19,19 @@ public class KafkaProducerService {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${app.kafka.topics.product}")
-    private String productTopic;
-
-    @Value("${app.kafka.topics.inventory}")
-    private String inventoryTopic;
-
-    @Value("${app.kafka.topics.product-error}")
-    private String productErrorTopic;
-
-    @Value("${app.kafka.topics.inventory-error}")
-    private String inventoryErrorTopic;
-
-    public void sendProductUpdate(String productId, Object productData) {
-        log.info("Sending product update for product ID: {}", productId);
-        sendMessage(productTopic, productId, productData);
+    public <T> void sendBatch(String topic, Map<String,T> eventMap) {
+            List<CompletableFuture<SendResult<String, Object>>> futures = new ArrayList<>();
+            eventMap.forEach((key, event) -> {
+                CompletableFuture<SendResult<String, Object>> completableFuture = kafkaTemplate.send(topic, key, event);
+                futures.add(completableFuture);
+                completableFuture.whenComplete((stringObjectSendResult, throwable) -> {
+                    if (throwable != null) {
+                        log.error("Sending kafka message failed with the following exception : {}, topic : {}, event: {}", throwable.getMessage(), topic, event);
+                        throw new KafkaProduceFailedException(throwable.getMessage(), throwable);
+                    }
+                });
+            });
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
-    public void sendInventoryUpdate(String inventoryId, Object inventoryData) {
-        log.info("Sending inventory update for inventory ID: {}", inventoryId);
-        sendMessage(inventoryTopic, inventoryId, inventoryData);
-    }
-
-    private void sendMessage(String topic, String key, Object message) {
-        log.info("Sending Kafka message to topic '{}' with key: '{}'", topic, key);
-
-        ProducerRecord<String, Object> record = new ProducerRecord<>(topic, key, message);
-
-        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(record);
-
-        future.whenComplete((result, throwable) -> {
-            if (throwable != null) {
-                log.error("Failed to send message to topic '{}' with key '{}': {}",
-                        topic, key, throwable.getMessage(), throwable);
-                String errorTopic = topic.equals(productTopic) ? productErrorTopic : inventoryErrorTopic;
-                sendErrorMessage(errorTopic, key, message, topic, throwable);
-            } else {
-                log.info("Successfully sent message to topic '{}' with key '{}', partition: {}, offset: {}",
-                        topic, key, result.getRecordMetadata().partition(), result.getRecordMetadata().offset());
-            }
-        });
-    }
-
-    private void sendErrorMessage(String errorTopic, String key, Object originalMessage, String originalTopic, Throwable throwable) {
-        KafkaCommonErrorEvent kafkaCommonErrorEvent = new KafkaCommonErrorEvent(
-                key,
-                originalMessage,
-                originalTopic,
-                throwable.getMessage(),
-                System.currentTimeMillis()
-        );
-        kafkaTemplate.send(errorTopic, key, kafkaCommonErrorEvent);
-        log.info("Sent error message to error topic '{}' for key '{}'", errorTopic, key);
-    }
 }

@@ -1,6 +1,5 @@
 package com.ikea.warehouse_data_ingestion_service.config.kafka;
 
-import io.micrometer.common.KeyValues;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -14,8 +13,6 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.ContainerProperties;
-import org.springframework.kafka.support.micrometer.KafkaRecordSenderContext;
-import org.springframework.kafka.support.micrometer.KafkaTemplateObservationConvention;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -35,6 +32,18 @@ public class KafkaConfig {
     @Value("${spring.kafka.consumer.group-id}")
     private String consumerGroupId;
 
+    @Value("${app.kafka.retry.attempts}")
+    private Integer retryAttempts;
+
+    @Value("${app.kafka.retry.backoff-delay}")
+    private Integer backoffDelay;
+
+    @Value("${spring.kafka.producer.batch-size}")
+    private Integer batchSize;
+
+    @Value("${spring.kafka.producer.linger-ms}")
+    private Integer lingerMs;
+
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
@@ -42,9 +51,10 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         configProps.put(ProducerConfig.ACKS_CONFIG, "all");
-        configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
-        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
-        configProps.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        configProps.put(ProducerConfig.RETRIES_CONFIG, retryAttempts);
+        configProps.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, backoffDelay);
+        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
+        configProps.put(ProducerConfig.LINGER_MS_CONFIG, lingerMs);
         configProps.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
         configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         configProps.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
