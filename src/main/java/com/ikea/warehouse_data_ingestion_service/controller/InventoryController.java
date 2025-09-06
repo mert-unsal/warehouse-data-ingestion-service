@@ -3,6 +3,7 @@ package com.ikea.warehouse_data_ingestion_service.controller;
 import com.ikea.warehouse_data_ingestion_service.data.InventoryData;
 import com.ikea.warehouse_data_ingestion_service.exception.FileProcessingException;
 import com.ikea.warehouse_data_ingestion_service.service.InventoryService;
+import com.ikea.warehouse_data_ingestion_service.util.ErrorMessages;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,7 +46,7 @@ public class InventoryController {
 
         log.info("Inventory upload completed successfully");
 
-        return ResponseEntity.ok(String.format("Inventory uploaded successfully. %d articles processed.", processedCount));
+        return ResponseEntity.ok(String.format("%s %d articles processed.", ErrorMessages.INVENTORY_UPLOADED_SUCCESS, processedCount));
     }
 
     @Operation(
@@ -62,7 +63,7 @@ public class InventoryController {
 
         if (inventoryData == null || inventoryData.inventory() == null) {
             log.warn("Inventory data ingestion failed - invalid or null data provided");
-            throw new FileProcessingException("Invalid inventory data provided", "FILE_PROCESSING_ERROR");
+            throw new FileProcessingException(ErrorMessages.INVALID_INVENTORY_DATA, "FILE_PROCESSING_ERROR");
         }
 
         log.info("Starting inventory data ingestion - {} articles received",
@@ -73,7 +74,6 @@ public class InventoryController {
         log.info("Inventory data ingestion completed successfully - {} articles processed",
                    inventoryData.inventory().size());
 
-        return ResponseEntity.ok(String.format("Inventory data processed successfully. %d articles received.",
-            inventoryData.inventory().size()));
+        return ResponseEntity.ok(String.format("%s %d articles received.", ErrorMessages.INVENTORY_DATA_PROCESSED_SUCCESS, inventoryData.inventory().size()));
     }
 }

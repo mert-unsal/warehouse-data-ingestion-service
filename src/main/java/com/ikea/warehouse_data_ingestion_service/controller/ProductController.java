@@ -3,6 +3,7 @@ package com.ikea.warehouse_data_ingestion_service.controller;
 import com.ikea.warehouse_data_ingestion_service.data.ProductsData;
 import com.ikea.warehouse_data_ingestion_service.exception.FileProcessingException;
 import com.ikea.warehouse_data_ingestion_service.service.ProductService;
+import com.ikea.warehouse_data_ingestion_service.util.ErrorMessages;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,7 +45,7 @@ public class ProductController {
 
         if (file.isEmpty()) {
             log.warn("Product upload failed - empty file provided");
-            throw new FileProcessingException("File is empty", "FILE_PROCESSING_ERROR");
+            throw new FileProcessingException(ErrorMessages.FILE_EMPTY, "FILE_PROCESSING_ERROR");
         }
 
         productService.proceedFile(file);
@@ -66,7 +67,7 @@ public class ProductController {
 
         if (productsData == null || productsData.products() == null) {
             log.warn("Product data ingestion failed - invalid or null data provided");
-            throw new FileProcessingException("Invalid products data provided", "FILE_PROCESSING_ERROR");
+            throw new FileProcessingException(ErrorMessages.INVALID_PRODUCTS_DATA, "FILE_PROCESSING_ERROR");
         }
 
         log.info("Starting product data ingestion - {} products received",
@@ -77,7 +78,6 @@ public class ProductController {
         log.info("Product data ingestion completed successfully - {} products processed",
                    productsData.products().size());
 
-        return ResponseEntity.ok(String.format("Products data processed successfully. %d products received.",
-            productsData.products().size()));
+        return ResponseEntity.ok(String.format("%s %d products received.", ErrorMessages.PRODUCTS_DATA_PROCESSED_SUCCESS, productsData.products().size()));
     }
 }
