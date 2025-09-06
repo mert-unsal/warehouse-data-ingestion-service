@@ -21,7 +21,7 @@ public class KafkaProducerService {
     @Value("${kafka.topic.product}")
     private String productTopic;
 
-    @Value("${kafka.topic.product}")
+    @Value("${kafka.topic.inventory}")
     private String inventoryTopic;
 
     public void sendProductData(Object productData) {
