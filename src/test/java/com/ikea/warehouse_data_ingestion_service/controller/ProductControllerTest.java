@@ -1,9 +1,10 @@
 package com.ikea.warehouse_data_ingestion_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ikea.warehouse_data_ingestion_service.data.ArticleAmount;
-import com.ikea.warehouse_data_ingestion_service.data.Product;
-import com.ikea.warehouse_data_ingestion_service.data.ProductsData;
+import com.ikea.warehouse_data_ingestion_service.data.dto.ArticleAmount;
+import com.ikea.warehouse_data_ingestion_service.data.dto.Product;
+import com.ikea.warehouse_data_ingestion_service.data.dto.ProductsData;
+import com.ikea.warehouse_data_ingestion_service.exception.GlobalExceptionHandler;
 import com.ikea.warehouse_data_ingestion_service.service.KafkaProducerService;
 import com.ikea.warehouse_data_ingestion_service.service.ProductService;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.ikea.warehouse_data_ingestion_service.util.ErrorTypes.FILE_PROCESSING_ERROR;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -31,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ProductController.class)
 @ActiveProfiles("test")
+@Import(GlobalExceptionHandler.class)
 class ProductControllerTest {
 
     @Autowired
@@ -97,23 +101,24 @@ class ProductControllerTest {
         mockMvc.perform(multipart("/api/v1/products/upload").file(emptyFile))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value("File is empty"))
-            .andExpect(jsonPath("$.error").value("FILE_PROCESSING_ERROR"));
+            .andExpect(jsonPath("$.error").value(FILE_PROCESSING_ERROR));
     }
 
     @Test
     void uploadProductsData_WithValidData_ShouldReturnSuccess() throws Exception {
         // Arrange
-        ProductsData testData = new ProductsData(List.of(
+        List<Product> products = List.of(
             new Product("Dining Chair", List.of(
                 new ArticleAmount("1", "1"),
                 new ArticleAmount("2", "8")
             ))
-        ));
+        );
+        java.util.Map<String, Object> requestPayload = java.util.Map.of("products", products);
 
         // Act & Assert
         mockMvc.perform(post("/api/v1/products/data")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(testData)))
+                .content(objectMapper.writeValueAsString(requestPayload)))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Products data processed successfully. 1 products received.")));
 

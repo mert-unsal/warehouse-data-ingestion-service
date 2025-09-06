@@ -1,8 +1,8 @@
 package com.ikea.warehouse_data_ingestion_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ikea.warehouse_data_ingestion_service.data.InventoryData;
-import com.ikea.warehouse_data_ingestion_service.data.InventoryItem;
+import com.ikea.warehouse_data_ingestion_service.data.dto.InventoryData;
+import com.ikea.warehouse_data_ingestion_service.data.dto.InventoryItem;
 import com.ikea.warehouse_data_ingestion_service.exception.FileProcessingException;
 import com.ikea.warehouse_data_ingestion_service.service.InventoryService;
 import org.junit.jupiter.api.Test;
@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.ikea.warehouse_data_ingestion_service.util.ErrorTypes.FILE_PROCESSING_ERROR;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -72,28 +73,28 @@ class InventoryControllerTest {
             MediaType.APPLICATION_JSON_VALUE,
             new byte[0]
         );
-        // Mock service to throw exception for empty file
         when(inventoryService.proceedFile(any(MultipartFile.class)))
-            .thenThrow(new FileProcessingException("File is empty", "FILE_PROCESSING_ERROR"));
+            .thenThrow(new FileProcessingException("File is empty", FILE_PROCESSING_ERROR));
         // Act & Assert
         mockMvc.perform(multipart("/api/v1/inventory/upload").file(emptyFile))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value("File is empty"))
-            .andExpect(jsonPath("$.error").value("FILE_PROCESSING_ERROR"));
+            .andExpect(jsonPath("$.error").value(FILE_PROCESSING_ERROR));
     }
 
     @Test
     void uploadInventoryData_WithValidData_ShouldReturnSuccess() throws Exception {
         // Arrange
-        InventoryData testData = new InventoryData(List.of(
+        List<InventoryItem> items = List.of(
             new InventoryItem("1", "leg", "12"),
             new InventoryItem("2", "screw", "17")
-        ));
+        );
+        java.util.Map<String, Object> requestPayload = java.util.Map.of("inventory", items);
 
         // Act & Assert
         mockMvc.perform(post("/api/v1/inventory/data")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(testData)))
+                .content(objectMapper.writeValueAsString(requestPayload)))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Inventory data processed successfully. 2 articles received.")));
 
@@ -108,6 +109,6 @@ class InventoryControllerTest {
                 .content("{\"invalid\": \"json\"}"))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value("Invalid inventory data provided"))
-            .andExpect(jsonPath("$.error").value("FILE_PROCESSING_ERROR"));
+            .andExpect(jsonPath("$.error").value(FILE_PROCESSING_ERROR));
     }
 }
