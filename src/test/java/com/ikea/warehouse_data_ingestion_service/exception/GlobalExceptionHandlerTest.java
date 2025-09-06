@@ -36,7 +36,7 @@ class GlobalExceptionHandlerTest {
         mockMvc.perform(multipart("/api/v1/inventory/upload")
                         .file(invalidJsonFile))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("Invalid JSON format")));
+                .andExpect(jsonPath("$.message", containsString("Failed to process inventory file")));
     }
 
     @Test
