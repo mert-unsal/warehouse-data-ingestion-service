@@ -81,7 +81,7 @@
 			<artifactId>spring-kafka-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- OpenTelemetry Spring Boot Starter -->
+		<!-- OpenTelemetry Spring Boot Starter - provides automatic instrumentation -->
 		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
 			<artifactId>opentelemetry-spring-boot-starter</artifactId>
@@ -99,12 +99,7 @@
 			<artifactId>opentelemetry-logback-mdc-1.0</artifactId>
 			<version>${opentelemetry.version.internal}-alpha</version>
 		</dependency>
-		<!-- MongoDB instrumentation (optional) -->
-		<dependency>
-			<groupId>io.opentelemetry.instrumentation</groupId>
-			<artifactId>opentelemetry-mongo-3.1</artifactId>
-			<version>${opentelemetry.version.internal}-alpha</version>
-		</dependency>
+
 		<!-- Logstash encoder for structured logging -->
 		<dependency>
 			<groupId>net.logstash.logback</groupId>
