@@ -1,6 +1,7 @@
 package com.ikea.warehouse_data_ingestion_service.service;
 
 import com.ikea.warehouse_data_ingestion_service.data.event.KafkaCommonErrorEvent;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -47,12 +48,10 @@ public class KafkaProducerService {
 
         CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(record);
 
-        // Add success and error callbacks
         future.whenComplete((result, throwable) -> {
             if (throwable != null) {
                 log.error("Failed to send message to topic '{}' with key '{}': {}",
                         topic, key, throwable.getMessage(), throwable);
-                // Send to error topic
                 String errorTopic = topic.equals(productTopic) ? productErrorTopic : inventoryErrorTopic;
                 sendErrorMessage(errorTopic, key, message, topic, throwable);
             } else {
@@ -68,7 +67,7 @@ public class KafkaProducerService {
                 originalMessage,
                 originalTopic,
                 throwable.getMessage(),
-                Long.valueOf(System.currentTimeMillis())
+                System.currentTimeMillis()
         );
         kafkaTemplate.send(errorTopic, key, kafkaCommonErrorEvent);
         log.info("Sent error message to error topic '{}' for key '{}'", errorTopic, key);

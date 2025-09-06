@@ -99,18 +99,11 @@
 			<artifactId>opentelemetry-logback-mdc-1.0</artifactId>
 			<version>${opentelemetry.version.internal}-alpha</version>
 		</dependency>
-
 		<!-- Logstash encoder for structured logging -->
 		<dependency>
 			<groupId>net.logstash.logback</groupId>
 			<artifactId>logstash-logback-encoder</artifactId>
 			<version>${logstash-logback-encoder.version}</version>
-		</dependency>
-		<!-- Kafka instrumentation for OpenTelemetry -->
-		<dependency>
-			<groupId>io.opentelemetry.instrumentation</groupId>
-			<artifactId>opentelemetry-spring-kafka-2.7</artifactId>
-			<version>${opentelemetry.version.internal}-alpha</version>
 		</dependency>
 	</dependencies>
 
