@@ -1,5 +1,6 @@
 package com.ikea.warehouse_data_ingestion_service.service;
 
+import com.ikea.warehouse_data_ingestion_service.data.ErrorKafkaMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -8,8 +9,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -25,28 +24,26 @@ public class KafkaProducerService {
     @Value("${app.kafka.topics.inventory}")
     private String inventoryTopic;
 
-    /**
-     * Send a message to Kafka.
-     * Tracing is handled automatically by the instrumented KafkaTemplate.
-     */
-    public CompletableFuture<SendResult<String, Object>> sendMessage(String topic, String key, Object message) {
-        return sendMessage(topic, key, message, null);
+    @Value("${app.kafka.topics.product-error}")
+    private String productErrorTopic;
+
+    @Value("${app.kafka.topics.inventory-error}")
+    private String inventoryErrorTopic;
+
+    public void sendProductUpdate(String productId, Object productData) {
+        log.info("Sending product update for product ID: {}", productId);
+        sendMessage(productTopic, productId, productData);
     }
 
-    /**
-     * Send a message to Kafka with custom headers.
-     * Tracing is handled automatically by the instrumented KafkaTemplate.
-     */
-    public CompletableFuture<SendResult<String, Object>> sendMessage(String topic, String key, Object message, Map<String, String> customHeaders) {
+    public void sendInventoryUpdate(String inventoryId, Object inventoryData) {
+        log.info("Sending inventory update for inventory ID: {}", inventoryId);
+        sendMessage(inventoryTopic, inventoryId, inventoryData);
+    }
+
+    private void sendMessage(String topic, String key, Object message) {
         log.info("Sending Kafka message to topic '{}' with key: '{}'", topic, key);
 
         ProducerRecord<String, Object> record = new ProducerRecord<>(topic, key, message);
-
-        // Add custom headers if provided
-        if (customHeaders != null) {
-            customHeaders.forEach((headerKey, headerValue) ->
-                    record.headers().add(headerKey, headerValue.getBytes(StandardCharsets.UTF_8)));
-        }
 
         CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(record);
 
@@ -55,30 +52,25 @@ public class KafkaProducerService {
             if (throwable != null) {
                 log.error("Failed to send message to topic '{}' with key '{}': {}",
                         topic, key, throwable.getMessage(), throwable);
+                // Send to error topic
+                String errorTopic = topic.equals(productTopic) ? productErrorTopic : inventoryErrorTopic;
+                sendErrorMessage(errorTopic, key, message, topic, throwable);
             } else {
                 log.info("Successfully sent message to topic '{}' with key '{}', partition: {}, offset: {}",
                         topic, key, result.getRecordMetadata().partition(), result.getRecordMetadata().offset());
             }
         });
-
-        return future;
     }
 
-    /**
-     * Send product update message.
-     * Tracing context is automatically propagated by Spring Boot instrumentation.
-     */
-    public CompletableFuture<SendResult<String, Object>> sendProductUpdate(String productId, Object productData) {
-        log.info("Sending product update for product ID: {}", productId);
-        return sendMessage(productTopic, productId, productData, null);
-    }
-
-    /**
-     * Send inventory update message.
-     * Tracing context is automatically propagated by Spring Boot instrumentation.
-     */
-    public CompletableFuture<SendResult<String, Object>> sendInventoryUpdate(String inventoryId, Object inventoryData) {
-        log.info("Sending inventory update for inventory ID: {}", inventoryId);
-        return sendMessage(inventoryTopic, inventoryId, inventoryData, null);
+    private void sendErrorMessage(String errorTopic, String key, Object originalMessage, String originalTopic, Throwable throwable) {
+        ErrorKafkaMessage errorKafkaMessage = new ErrorKafkaMessage(
+                key,
+                originalMessage,
+                originalTopic,
+                throwable.getMessage(),
+                System.currentTimeMillis()
+        );
+        kafkaTemplate.send(errorTopic, key, errorKafkaMessage);
+        log.info("Sent error message to error topic '{}' for key '{}'", errorTopic, key);
     }
 }
