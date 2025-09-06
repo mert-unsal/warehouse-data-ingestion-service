@@ -87,6 +87,12 @@
 			<artifactId>opentelemetry-spring-boot-starter</artifactId>
 			<version>${opentelemetry.version.internal}</version>
 		</dependency>
+		<!-- OpenTelemetry Kafka instrumentation for trace propagation -->
+		<dependency>
+			<groupId>io.opentelemetry.instrumentation</groupId>
+			<artifactId>opentelemetry-kafka-clients-2.6</artifactId>
+			<version>${opentelemetry.version.internal}-alpha</version>
+		</dependency>
 		<!-- Logback MDC instrumentation -->
 		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
