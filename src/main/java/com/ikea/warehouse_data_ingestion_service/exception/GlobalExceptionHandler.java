@@ -11,10 +11,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import com.ikea.warehouse_data_ingestion_service.util.ErrorMessages;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import static com.ikea.warehouse_data_ingestion_service.util.ErrorTypes.FILE_PROCESSING_ERROR;
 
 @Slf4j
 @RestControllerAdvice
@@ -28,7 +32,7 @@ public class GlobalExceptionHandler {
         log.error("IO Exception occurred: {}", ex.getMessage(), ex);
 
         ErrorResponse errorResponse = new ErrorResponse(
-            "FILE_PROCESSING_ERROR",
+            FILE_PROCESSING_ERROR,
             "Failed to process uploaded file: " + ex.getMessage(),
             HttpStatus.BAD_REQUEST.value(),
             request.getRequestURI(),
@@ -123,6 +127,23 @@ public class GlobalExceptionHandler {
             LocalDateTime.now().format(TIMESTAMP_FORMATTER)
         );
 
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        log.error("Validation failed: {}", ex.getMessage(), ex);
+        String uri = request.getRequestURI();
+        String message = uri != null && uri.contains("/inventory")
+                ? ErrorMessages.INVALID_INVENTORY_DATA
+                : ErrorMessages.INVALID_PRODUCTS_DATA;
+        ErrorResponse errorResponse = new ErrorResponse(
+                FILE_PROCESSING_ERROR,
+                message,
+                HttpStatus.BAD_REQUEST.value(),
+                uri,
+                LocalDateTime.now().format(TIMESTAMP_FORMATTER)
+        );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 

@@ -1,9 +1,12 @@
 package com.ikea.warehouse_data_ingestion_service.exception;
 
+import lombok.Getter;
+
 /**
  * Custom exception for file processing errors in the warehouse data ingestion service.
  * This exception will be caught by the GlobalExceptionHandler and converted to a proper ErrorResponse.
  */
+@Getter
 public class FileProcessingException extends RuntimeException {
 
     private final String error;
@@ -28,7 +31,4 @@ public class FileProcessingException extends RuntimeException {
         this.error = error;
     }
 
-    public String getError() {
-        return error;
-    }
 }
