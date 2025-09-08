@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = new ErrorResponse(
                 FILE_PROCESSING_ERROR,
-                STR."Failed to process uploaded file: \{ioException.getMessage()}",
+                "Failed to process uploaded file: " + ioException.getMessage(),
                 HttpStatus.BAD_REQUEST.value(),
                 request.getRequestURI(),
                 LocalDateTime.now().format(TIMESTAMP_FORMATTER)
@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleKafkaMessage(KafkaProduceFailedException kafkaProduceFailedException, HttpServletRequest request) {
         log.error("KafkaProduceFailedException Exception occurred: {}", kafkaProduceFailedException.getMessage(), kafkaProduceFailedException);
         ErrorResponse errorResponse = new ErrorResponse(
-            FILE_PROCESSING_ERROR, STR."Failed to process uploaded file: \{kafkaProduceFailedException.getMessage()}",
+            FILE_PROCESSING_ERROR, "Failed to process uploaded file: " + kafkaProduceFailedException.getMessage(),
             HttpStatus.BAD_REQUEST.value(),
             request.getRequestURI(),
             LocalDateTime.now().format(TIMESTAMP_FORMATTER)
