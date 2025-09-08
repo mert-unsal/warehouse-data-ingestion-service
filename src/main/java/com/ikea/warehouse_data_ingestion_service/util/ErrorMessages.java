@@ -5,13 +5,9 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ErrorMessages {
     public static final String FILE_EMPTY = "File is empty";
-    public static final String FAILED_TO_PROCESS_INVENTORY_FILE = "Failed to process inventory file";
-    public static final String FAILED_TO_PROCESS_PRODUCTS_FILE = "Failed to process products file";
     public static final String INVALID_PRODUCTS_DATA = "Invalid products data provided";
     public static final String INVALID_INVENTORY_DATA = "Invalid inventory data provided";
     public static final String PRODUCTS_UPLOADED_SUCCESS = "Products uploaded successfully.";
     public static final String INVENTORY_UPLOADED_SUCCESS = "Inventory uploaded successfully.";
-    public static final String INVENTORY_DATA_PROCESSED_SUCCESS = "Inventory data processed successfully.";
-    public static final String PRODUCTS_DATA_PROCESSED_SUCCESS = "Products data processed successfully.";
 
 }
