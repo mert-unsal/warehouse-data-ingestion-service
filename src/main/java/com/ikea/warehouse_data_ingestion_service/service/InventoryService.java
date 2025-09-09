@@ -29,7 +29,7 @@ public class InventoryService {
     private final KafkaProducerService kafkaProducerService;
 
     @Value("${app.kafka.topics.inventory}")
-    private String productTopic;
+    private String inventoryTopic;
 
     public void proceedFile(MultipartFile file, Instant fileCreatedAt) throws IOException {
         if (ObjectUtils.isEmpty(file)) {
@@ -38,7 +38,7 @@ public class InventoryService {
 
         InventoryData inventoryData = objectMapper.readValue(file.getInputStream(), InventoryData.class);
 
-        kafkaProducerService.sendBatch(productTopic, inventoryData.inventory()
+        kafkaProducerService.sendBatch(inventoryTopic, inventoryData.inventory()
                 .stream()
                 .collect(Collectors.toMap(InventoryItem::artId, inventoryItem -> InventoryUpdateEvent.builder()
                         .artId(inventoryItem.artId())
@@ -46,6 +46,5 @@ public class InventoryService {
                         .stock(inventoryItem.stock())
                         .fileCreatedAt(fileCreatedAt)
                         .build())));
-
     }
 }
